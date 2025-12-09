@@ -24,7 +24,7 @@ const DogGrid = () => {
 
       return matchesSize && matchesAge && matchesSearch;
     });
-  }, [sizeFilter, ageFilter, searchQuery]);
+  }, [dogs, sizeFilter, ageFilter, searchQuery]);
 
   const handleClearFilters = () => {
     setSizeFilter('All');
