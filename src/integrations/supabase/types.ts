@@ -14,7 +14,57 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      dogs: {
+        Row: {
+          age: string
+          breed: string
+          created_at: string
+          description: string
+          gender: string
+          good_with_cats: boolean
+          good_with_dogs: boolean
+          good_with_kids: boolean
+          id: string
+          image: string
+          location: string
+          name: string
+          rescue: string
+          size: string
+        }
+        Insert: {
+          age: string
+          breed: string
+          created_at?: string
+          description: string
+          gender: string
+          good_with_cats?: boolean
+          good_with_dogs?: boolean
+          good_with_kids?: boolean
+          id?: string
+          image: string
+          location: string
+          name: string
+          rescue: string
+          size: string
+        }
+        Update: {
+          age?: string
+          breed?: string
+          created_at?: string
+          description?: string
+          gender?: string
+          good_with_cats?: boolean
+          good_with_dogs?: boolean
+          good_with_kids?: boolean
+          id?: string
+          image?: string
+          location?: string
+          name?: string
+          rescue?: string
+          size?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

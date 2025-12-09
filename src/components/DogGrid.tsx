@@ -1,15 +1,16 @@
 import { useState, useMemo } from 'react';
 import DogCard from './DogCard';
 import FilterSidebar from './FilterSidebar';
-import { dogs } from '@/data/dogs';
+import { useDogs } from '@/hooks/useDogs';
 import type { SizeFilter, AgeFilter } from '@/types/dog';
-import { Search } from 'lucide-react';
+import { Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 
 const DogGrid = () => {
   const [sizeFilter, setSizeFilter] = useState<SizeFilter>('All');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const { data: dogs = [], isLoading, error } = useDogs();
 
   const filteredDogs = useMemo(() => {
     return dogs.filter((dog) => {
@@ -54,7 +55,7 @@ const DogGrid = () => {
             />
           </div>
 
-          <div className="flex-1">
+        <div className="flex-1">
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
               <div className="relative w-full sm:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -71,7 +72,16 @@ const DogGrid = () => {
               </p>
             </div>
 
-            {filteredDogs.length > 0 ? (
+            {isLoading ? (
+              <div className="flex items-center justify-center py-16">
+                <Loader2 className="w-8 h-8 animate-spin text-primary" />
+              </div>
+            ) : error ? (
+              <div className="text-center py-16 bg-card rounded-2xl shadow-soft">
+                <p className="font-display text-xl text-foreground mb-2">Error loading dogs</p>
+                <p className="text-muted-foreground">Please try again later</p>
+              </div>
+            ) : filteredDogs.length > 0 ? (
               <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
                 {filteredDogs.map((dog, index) => (
                   <div
