@@ -7,6 +7,7 @@ export interface Dog {
   gender: 'Male' | 'Female';
   location: string;
   rescue: string;
+  rescueWebsite?: string;
   image: string;
   goodWithKids: boolean;
   goodWithDogs: boolean;

@@ -29,6 +29,7 @@ export type Database = {
           location: string
           name: string
           rescue: string
+          rescue_id: string | null
           size: string
         }
         Insert: {
@@ -45,6 +46,7 @@ export type Database = {
           location: string
           name: string
           rescue: string
+          rescue_id?: string | null
           size: string
         }
         Update: {
@@ -61,7 +63,43 @@ export type Database = {
           location?: string
           name?: string
           rescue?: string
+          rescue_id?: string | null
           size?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dogs_rescue_id_fkey"
+            columns: ["rescue_id"]
+            isOneToOne: false
+            referencedRelation: "rescues"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rescues: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          region: string
+          type: string
+          website: string | null
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          region: string
+          type?: string
+          website?: string | null
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          region?: string
+          type?: string
+          website?: string | null
         }
         Relationships: []
       }

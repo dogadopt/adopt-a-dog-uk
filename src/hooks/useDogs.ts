@@ -8,7 +8,15 @@ export const useDogs = () => {
     queryFn: async (): Promise<Dog[]> => {
       const { data, error } = await supabase
         .from('dogs')
-        .select('*')
+        .select(`
+          *,
+          rescues (
+            id,
+            name,
+            region,
+            website
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) {
@@ -23,7 +31,8 @@ export const useDogs = () => {
         size: dog.size as 'Small' | 'Medium' | 'Large',
         gender: dog.gender as 'Male' | 'Female',
         location: dog.location,
-        rescue: dog.rescue,
+        rescue: dog.rescues?.name || dog.rescue,
+        rescueWebsite: dog.rescues?.website,
         image: dog.image,
         goodWithKids: dog.good_with_kids,
         goodWithDogs: dog.good_with_dogs,
