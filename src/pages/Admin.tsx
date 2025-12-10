@@ -1,0 +1,444 @@
+import { useState, useEffect } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { useAuth } from '@/hooks/useAuth';
+import { useDogs } from '@/hooks/useDogs';
+import { useRescues } from '@/hooks/useRescues';
+import { supabase } from '@/integrations/supabase/client';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Heart, Loader2, Plus, Pencil, Trash2, LogOut, ArrowLeft } from 'lucide-react';
+import { useToast } from '@/hooks/use-toast';
+import { useQueryClient } from '@tanstack/react-query';
+import type { Dog } from '@/types/dog';
+
+interface DogFormData {
+  name: string;
+  breed: string;
+  age: string;
+  size: string;
+  gender: string;
+  location: string;
+  rescue_id: string;
+  image: string;
+  description: string;
+  good_with_kids: boolean;
+  good_with_dogs: boolean;
+  good_with_cats: boolean;
+}
+
+const initialFormData: DogFormData = {
+  name: '',
+  breed: '',
+  age: 'Adult',
+  size: 'Medium',
+  gender: 'Male',
+  location: '',
+  rescue_id: '',
+  image: '',
+  description: '',
+  good_with_kids: false,
+  good_with_dogs: false,
+  good_with_cats: false,
+};
+
+const Admin = () => {
+  const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
+  const { data: dogs = [], isLoading: dogsLoading, refetch } = useDogs();
+  const { data: rescues = [] } = useRescues();
+  const navigate = useNavigate();
+  const { toast } = useToast();
+  const queryClient = useQueryClient();
+  
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [editingDog, setEditingDog] = useState<Dog | null>(null);
+  const [formData, setFormData] = useState<DogFormData>(initialFormData);
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  useEffect(() => {
+    if (!authLoading && !user) {
+      navigate('/auth');
+    }
+  }, [user, authLoading, navigate]);
+
+  useEffect(() => {
+    if (!authLoading && user && !isAdmin) {
+      toast({
+        title: 'Access Denied',
+        description: 'You do not have admin privileges.',
+        variant: 'destructive'
+      });
+      navigate('/');
+    }
+  }, [isAdmin, authLoading, user, navigate, toast]);
+
+  const handleOpenDialog = (dog?: Dog) => {
+    if (dog) {
+      setEditingDog(dog);
+      // Find rescue_id from rescue name
+      const rescue = rescues.find(r => r.name === dog.rescue);
+      setFormData({
+        name: dog.name,
+        breed: dog.breed,
+        age: dog.age,
+        size: dog.size,
+        gender: dog.gender,
+        location: dog.location,
+        rescue_id: rescue?.id || '',
+        image: dog.image,
+        description: dog.description,
+        good_with_kids: dog.goodWithKids,
+        good_with_dogs: dog.goodWithDogs,
+        good_with_cats: dog.goodWithCats,
+      });
+    } else {
+      setEditingDog(null);
+      setFormData(initialFormData);
+    }
+    setIsDialogOpen(true);
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsSubmitting(true);
+
+    try {
+      const rescue = rescues.find(r => r.id === formData.rescue_id);
+      const dogData = {
+        name: formData.name,
+        breed: formData.breed,
+        age: formData.age,
+        size: formData.size,
+        gender: formData.gender,
+        location: formData.location,
+        rescue: rescue?.name || '',
+        rescue_id: formData.rescue_id || null,
+        image: formData.image,
+        description: formData.description,
+        good_with_kids: formData.good_with_kids,
+        good_with_dogs: formData.good_with_dogs,
+        good_with_cats: formData.good_with_cats,
+      };
+
+      if (editingDog) {
+        const { error } = await supabase
+          .from('dogs')
+          .update(dogData)
+          .eq('id', editingDog.id);
+
+        if (error) throw error;
+        toast({ title: 'Success', description: 'Dog updated successfully' });
+      } else {
+        const { error } = await supabase
+          .from('dogs')
+          .insert([dogData]);
+
+        if (error) throw error;
+        toast({ title: 'Success', description: 'Dog added successfully' });
+      }
+
+      setIsDialogOpen(false);
+      queryClient.invalidateQueries({ queryKey: ['dogs'] });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Something went wrong',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleDelete = async (dogId: string) => {
+    try {
+      const { error } = await supabase
+        .from('dogs')
+        .delete()
+        .eq('id', dogId);
+
+      if (error) throw error;
+      toast({ title: 'Success', description: 'Dog removed successfully' });
+      queryClient.invalidateQueries({ queryKey: ['dogs'] });
+    } catch (error: any) {
+      toast({
+        title: 'Error',
+        description: error.message || 'Failed to delete dog',
+        variant: 'destructive'
+      });
+    }
+  };
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate('/');
+  };
+
+  if (authLoading || dogsLoading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-background">
+        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+      </div>
+    );
+  }
+
+  if (!user || !isAdmin) {
+    return null;
+  }
+
+  return (
+    <div className="min-h-screen bg-background">
+      <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border">
+        <div className="container mx-auto px-4">
+          <div className="flex items-center justify-between h-16">
+            <div className="flex items-center gap-4">
+              <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
+                <ArrowLeft className="w-5 h-5" />
+              </Button>
+              <div className="flex items-center gap-2">
+                <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
+                  <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
+                </div>
+                <span className="font-display text-xl font-semibold text-foreground">
+                  Admin Panel
+                </span>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <span className="text-sm text-muted-foreground">{user.email}</span>
+              <Button variant="outline" size="sm" onClick={handleSignOut}>
+                <LogOut className="w-4 h-4 mr-2" />
+                Sign Out
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
+
+      <main className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-between mb-8">
+          <h1 className="font-display text-3xl font-bold text-foreground">Manage Dogs</h1>
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button onClick={() => handleOpenDialog()}>
+                <Plus className="w-4 h-4 mr-2" />
+                Add Dog
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+              <DialogHeader>
+                <DialogTitle>{editingDog ? 'Edit Dog' : 'Add New Dog'}</DialogTitle>
+              </DialogHeader>
+              <form onSubmit={handleSubmit} className="space-y-4">
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="name">Name</Label>
+                    <Input
+                      id="name"
+                      value={formData.name}
+                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="breed">Breed</Label>
+                    <Input
+                      id="breed"
+                      value={formData.breed}
+                      onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
+                      required
+                    />
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-3 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="age">Age</Label>
+                    <Select value={formData.age} onValueChange={(v) => setFormData({ ...formData, age: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Puppy">Puppy</SelectItem>
+                        <SelectItem value="Young">Young</SelectItem>
+                        <SelectItem value="Adult">Adult</SelectItem>
+                        <SelectItem value="Senior">Senior</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="size">Size</Label>
+                    <Select value={formData.size} onValueChange={(v) => setFormData({ ...formData, size: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Small">Small</SelectItem>
+                        <SelectItem value="Medium">Medium</SelectItem>
+                        <SelectItem value="Large">Large</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="gender">Gender</Label>
+                    <Select value={formData.gender} onValueChange={(v) => setFormData({ ...formData, gender: v })}>
+                      <SelectTrigger><SelectValue /></SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="Male">Male</SelectItem>
+                        <SelectItem value="Female">Female</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <Input
+                      id="location"
+                      value={formData.location}
+                      onChange={(e) => setFormData({ ...formData, location: e.target.value })}
+                      required
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rescue">Rescue Organisation</Label>
+                    <Select value={formData.rescue_id} onValueChange={(v) => setFormData({ ...formData, rescue_id: v })}>
+                      <SelectTrigger><SelectValue placeholder="Select rescue" /></SelectTrigger>
+                      <SelectContent>
+                        {rescues.map((rescue) => (
+                          <SelectItem key={rescue.id} value={rescue.id}>
+                            {rescue.name}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="image">Image URL</Label>
+                  <Input
+                    id="image"
+                    type="url"
+                    value={formData.image}
+                    onChange={(e) => setFormData({ ...formData, image: e.target.value })}
+                    placeholder="https://..."
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="description">Description</Label>
+                  <Textarea
+                    id="description"
+                    value={formData.description}
+                    onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                    rows={3}
+                    required
+                  />
+                </div>
+
+                <div className="flex flex-wrap gap-6">
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="good_with_kids"
+                      checked={formData.good_with_kids}
+                      onCheckedChange={(c) => setFormData({ ...formData, good_with_kids: !!c })}
+                    />
+                    <Label htmlFor="good_with_kids">Good with kids</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="good_with_dogs"
+                      checked={formData.good_with_dogs}
+                      onCheckedChange={(c) => setFormData({ ...formData, good_with_dogs: !!c })}
+                    />
+                    <Label htmlFor="good_with_dogs">Good with dogs</Label>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    <Checkbox
+                      id="good_with_cats"
+                      checked={formData.good_with_cats}
+                      onCheckedChange={(c) => setFormData({ ...formData, good_with_cats: !!c })}
+                    />
+                    <Label htmlFor="good_with_cats">Good with cats</Label>
+                  </div>
+                </div>
+
+                <div className="flex justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                    Cancel
+                  </Button>
+                  <Button type="submit" disabled={isSubmitting}>
+                    {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
+                    {editingDog ? 'Save Changes' : 'Add Dog'}
+                  </Button>
+                </div>
+              </form>
+            </DialogContent>
+          </Dialog>
+        </div>
+
+        <div className="grid gap-4">
+          {dogs.length === 0 ? (
+            <Card>
+              <CardContent className="py-8 text-center text-muted-foreground">
+                No dogs yet. Click "Add Dog" to get started.
+              </CardContent>
+            </Card>
+          ) : (
+            dogs.map((dog) => (
+              <Card key={dog.id}>
+                <CardContent className="flex items-center gap-4 py-4">
+                  <img
+                    src={dog.image}
+                    alt={dog.name}
+                    className="w-16 h-16 rounded-lg object-cover"
+                  />
+                  <div className="flex-1 min-w-0">
+                    <h3 className="font-display font-semibold text-foreground">{dog.name}</h3>
+                    <p className="text-sm text-muted-foreground truncate">
+                      {dog.breed} • {dog.age} • {dog.size} • {dog.location}
+                    </p>
+                    <p className="text-xs text-muted-foreground">{dog.rescue}</p>
+                  </div>
+                  <div className="flex gap-2">
+                    <Button variant="outline" size="icon" onClick={() => handleOpenDialog(dog)}>
+                      <Pencil className="w-4 h-4" />
+                    </Button>
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button variant="outline" size="icon" className="text-destructive hover:text-destructive">
+                          <Trash2 className="w-4 h-4" />
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete {dog.name}?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            This action cannot be undone. This will permanently remove {dog.name} from the database.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction onClick={() => handleDelete(dog.id)} className="bg-destructive text-destructive-foreground hover:bg-destructive/90">
+                            Delete
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          )}
+        </div>
+      </main>
+    </div>
+  );
+};
+
+export default Admin;
