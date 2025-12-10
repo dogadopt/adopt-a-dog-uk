@@ -1,5 +1,7 @@
+CREATE SCHEMA IF NOT EXISTS dogadopt;
+
 -- Create dogs table
-CREATE TABLE public.dogs (
+CREATE TABLE dogadopt.dogs (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   breed TEXT NOT NULL,
@@ -17,16 +19,16 @@ CREATE TABLE public.dogs (
 );
 
 -- Enable RLS
-ALTER TABLE public.dogs ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dogadopt.dogs ENABLE ROW LEVEL SECURITY;
 
 -- Dogs are publicly viewable (adopt don't shop - we want everyone to see them)
 CREATE POLICY "Dogs are publicly viewable" 
-ON public.dogs 
+ON dogadopt.dogs 
 FOR SELECT 
 USING (true);
 
 -- Insert sample dogs
-INSERT INTO public.dogs (name, breed, age, size, gender, location, rescue, image, good_with_kids, good_with_dogs, good_with_cats, description) VALUES
+INSERT INTO dogadopt.dogs (name, breed, age, size, gender, location, rescue, image, good_with_kids, good_with_dogs, good_with_cats, description) VALUES
 ('Bella', 'Labrador Retriever', 'Adult', 'Large', 'Female', 'London', 'Battersea Dogs Home', 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800', true, true, false, 'Bella is a gentle giant with a heart of gold. She loves long walks in the park and cuddles on the sofa.'),
 ('Max', 'German Shepherd', 'Young', 'Large', 'Male', 'Manchester', 'Dogs Trust Manchester', 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=800', true, true, false, 'Max is an intelligent and loyal companion. He''s great with training and loves to learn new tricks.'),
 ('Daisy', 'Cocker Spaniel', 'Senior', 'Medium', 'Female', 'Bristol', 'Bristol Animal Rescue', 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800', true, true, true, 'Daisy is a sweet senior girl looking for a quiet home. She enjoys gentle walks and sunny spots.'),

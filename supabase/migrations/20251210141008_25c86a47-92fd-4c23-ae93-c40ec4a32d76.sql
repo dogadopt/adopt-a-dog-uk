@@ -1,5 +1,5 @@
 -- Create rescues table for ADCH members
-CREATE TABLE public.rescues (
+CREATE TABLE dogadopt.rescues (
   id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL UNIQUE,
   type TEXT NOT NULL DEFAULT 'Full',
@@ -9,20 +9,20 @@ CREATE TABLE public.rescues (
 );
 
 -- Enable RLS
-ALTER TABLE public.rescues ENABLE ROW LEVEL SECURITY;
+ALTER TABLE dogadopt.rescues ENABLE ROW LEVEL SECURITY;
 
 -- Allow public read access
 CREATE POLICY "Rescues are publicly viewable"
-ON public.rescues
+ON dogadopt.rescues
 FOR SELECT
 USING (true);
 
 -- Add foreign key to dogs table
-ALTER TABLE public.dogs 
+ALTER TABLE dogadopt.dogs 
 ADD COLUMN rescue_id UUID REFERENCES public.rescues(id);
 
 -- Insert ADCH member rescues (dog-related ones)
-INSERT INTO public.rescues (name, type, region, website) VALUES
+INSERT INTO dogadopt.rescues (name, type, region, website) VALUES
 ('Aireworth Dogs in Need', 'Full', 'Yorkshire & The Humber', 'www.areworthdogsinneed.co.uk'),
 ('Akita Rescue & Welfare Trust (UK)', 'Full', 'South East England', 'www.akitarescue.org.uk'),
 ('All Creatures Great & Small', 'Full', 'South Wales', 'www.allcreaturesgreatandsmall.org.uk'),
@@ -146,8 +146,8 @@ INSERT INTO public.rescues (name, type, region, website) VALUES
 ('Wythall Animal Sanctuary', 'Full', 'West Midlands', 'www.wythallanimalsanctuary.org');
 
 -- Update existing dogs to link to rescues
-UPDATE public.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Battersea' LIMIT 1) WHERE rescue = 'Battersea Dogs Home';
-UPDATE public.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Dogs Trust' LIMIT 1) WHERE rescue = 'Dogs Trust Manchester';
-UPDATE public.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Bristol Animal Rescue Centre' LIMIT 1) WHERE rescue = 'Bristol Animal Rescue';
-UPDATE public.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Birmingham Dogs Home' LIMIT 1) WHERE rescue = 'Birmingham Dogs Home';
-UPDATE public.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Scottish SPCA' LIMIT 1) WHERE rescue = 'Scottish SPCA';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Battersea' LIMIT 1) WHERE rescue = 'Battersea Dogs Home';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Dogs Trust' LIMIT 1) WHERE rescue = 'Dogs Trust Manchester';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Bristol Animal Rescue Centre' LIMIT 1) WHERE rescue = 'Bristol Animal Rescue';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Birmingham Dogs Home' LIMIT 1) WHERE rescue = 'Birmingham Dogs Home';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Scottish SPCA' LIMIT 1) WHERE rescue = 'Scottish SPCA';
