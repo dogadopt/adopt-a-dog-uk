@@ -47,7 +47,7 @@ const Hero = () => {
                 <p className="text-sm text-muted-foreground">UK Rescues</p>
               </div>
               <div>
-                <p className="font-display text-3xl font-bold text-primary">12K+</p>
+                <p className="font-display text-3xl font-bold text-primary">0</p>
                 <p className="text-sm text-muted-foreground">Happy Adoptions</p>
               </div>
             </div>
