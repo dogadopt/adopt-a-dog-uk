@@ -12,7 +12,7 @@ export type Database = {
   __InternalSupabase: {
     PostgrestVersion: "13.0.5"
   }
-  public: {
+  dogadopt: {
     Tables: {
       dogs: {
         Row: {
@@ -124,17 +124,17 @@ export type Database = {
       user_roles: {
         Row: {
           id: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: Database["dogadopt"]["Enums"]["app_role"]
           user_id: string
         }
         Insert: {
           id?: string
-          role: Database["public"]["Enums"]["app_role"]
+          role: Database["dogadopt"]["Enums"]["app_role"]
           user_id: string
         }
         Update: {
           id?: string
-          role?: Database["public"]["Enums"]["app_role"]
+          role?: Database["dogadopt"]["Enums"]["app_role"]
           user_id?: string
         }
         Relationships: []
@@ -146,7 +146,7 @@ export type Database = {
     Functions: {
       has_role: {
         Args: {
-          _role: Database["public"]["Enums"]["app_role"]
+          _role: Database["dogadopt"]["Enums"]["app_role"]
           _user_id: string
         }
         Returns: boolean
@@ -163,7 +163,7 @@ export type Database = {
 
 type DatabaseWithoutInternals = Omit<Database, "__InternalSupabase">
 
-type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "public">]
+type DefaultSchema = DatabaseWithoutInternals[Extract<keyof Database, "dogadopt">]
 
 export type Tables<
   DefaultSchemaTableNameOrOptions extends
@@ -279,7 +279,7 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  public: {
+  dogadopt: {
     Enums: {
       app_role: ["admin", "user"],
     },

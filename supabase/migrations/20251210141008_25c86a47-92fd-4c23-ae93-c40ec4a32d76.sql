@@ -19,7 +19,7 @@ USING (true);
 
 -- Add foreign key to dogs table
 ALTER TABLE dogadopt.dogs 
-ADD COLUMN rescue_id UUID REFERENCES public.rescues(id);
+ADD COLUMN rescue_id UUID REFERENCES dogadopt.rescues(id);
 
 -- Insert ADCH member rescues (dog-related ones)
 INSERT INTO dogadopt.rescues (name, type, region, website) VALUES
@@ -146,8 +146,8 @@ INSERT INTO dogadopt.rescues (name, type, region, website) VALUES
 ('Wythall Animal Sanctuary', 'Full', 'West Midlands', 'www.wythallanimalsanctuary.org');
 
 -- Update existing dogs to link to rescues
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Battersea' LIMIT 1) WHERE rescue = 'Battersea Dogs Home';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Dogs Trust' LIMIT 1) WHERE rescue = 'Dogs Trust Manchester';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Bristol Animal Rescue Centre' LIMIT 1) WHERE rescue = 'Bristol Animal Rescue';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Birmingham Dogs Home' LIMIT 1) WHERE rescue = 'Birmingham Dogs Home';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM public.rescues WHERE name = 'Scottish SPCA' LIMIT 1) WHERE rescue = 'Scottish SPCA';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Battersea' LIMIT 1) WHERE rescue = 'Battersea Dogs Home';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Dogs Trust' LIMIT 1) WHERE rescue = 'Dogs Trust Manchester';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Bristol Animal Rescue Centre' LIMIT 1) WHERE rescue = 'Bristol Animal Rescue';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Birmingham Dogs Home' LIMIT 1) WHERE rescue = 'Birmingham Dogs Home';
+UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Scottish SPCA' LIMIT 1) WHERE rescue = 'Scottish SPCA';
