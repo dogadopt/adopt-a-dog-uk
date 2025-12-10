@@ -1,8 +1,10 @@
 import { Button } from '@/components/ui/button';
 import { Heart, Search } from 'lucide-react';
 import heroImage from '@/assets/hero-dog.jpg';
+import { useDogs } from '@/hooks/useDogs';
 
 const Hero = () => {
+  const { data: dogs = [] } = useDogs();
   return (
     <section className="relative min-h-[600px] gradient-hero overflow-hidden">
       <div className="container mx-auto px-4 py-16 lg:py-24">
@@ -37,7 +39,7 @@ const Hero = () => {
 
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-border">
               <div>
-                <p className="font-display text-3xl font-bold text-primary">2,847</p>
+                <p className="font-display text-3xl font-bold text-primary">{dogs.length.toLocaleString()}</p>
                 <p className="text-sm text-muted-foreground">Dogs Available</p>
               </div>
               <div>
