@@ -13,7 +13,7 @@ export const useRescues = () => {
   return useQuery({
     queryKey: ['rescues'],
     queryFn: async (): Promise<Rescue[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('rescues')
         .select('*')
         .order('name', { ascending: true });
@@ -22,7 +22,7 @@ export const useRescues = () => {
         throw error;
       }
 
-      return data;
+      return data as unknown as Rescue[];
     },
   });
 };

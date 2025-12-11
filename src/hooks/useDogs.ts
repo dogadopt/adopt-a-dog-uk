@@ -2,11 +2,35 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Dog } from '@/types/dog';
 
+interface DogRow {
+  id: string;
+  name: string;
+  breed: string;
+  age: string;
+  size: string;
+  gender: string;
+  location: string;
+  rescue: string;
+  rescue_id: string | null;
+  image: string;
+  description: string;
+  good_with_kids: boolean;
+  good_with_dogs: boolean;
+  good_with_cats: boolean;
+  created_at: string;
+  rescues: {
+    id: string;
+    name: string;
+    region: string;
+    website: string | null;
+  } | null;
+}
+
 export const useDogs = () => {
   return useQuery({
     queryKey: ['dogs'],
     queryFn: async (): Promise<Dog[]> => {
-      const { data, error } = await supabase
+      const { data, error } = await (supabase as any)
         .from('dogs')
         .select(`
           *,
@@ -23,7 +47,7 @@ export const useDogs = () => {
         throw error;
       }
 
-      return data.map((dog) => ({
+      return (data as unknown as DogRow[]).map((dog) => ({
         id: dog.id,
         name: dog.name,
         breed: dog.breed,
