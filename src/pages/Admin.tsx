@@ -127,7 +127,7 @@ const Admin = () => {
       };
 
       if (editingDog) {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('dogs')
           .update(dogData)
           .eq('id', editingDog.id);
@@ -135,7 +135,7 @@ const Admin = () => {
         if (error) throw error;
         toast({ title: 'Success', description: 'Dog updated successfully' });
       } else {
-        const { error } = await supabase
+        const { error } = await (supabase as any)
           .from('dogs')
           .insert([dogData]);
 
@@ -158,7 +158,7 @@ const Admin = () => {
 
   const handleDelete = async (dogId: string) => {
     try {
-      const { error } = await supabase
+      const { error } = await (supabase as any)
         .from('dogs')
         .delete()
         .eq('id', dogId);
