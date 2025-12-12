@@ -2,6 +2,9 @@ import { createContext, useContext, useEffect, useState, ReactNode } from 'react
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
 
+// DEV ONLY: Set to true to bypass auth and simulate admin access
+const DEV_BYPASS_AUTH = import.meta.env.DEV && true; // Change to false to disable
+
 interface AuthContextType {
   user: User | null;
   session: Session | null;
@@ -15,11 +18,22 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
+// Mock user for dev bypass
+const mockDevUser: User = {
+  id: 'dev-bypass-user',
+  email: 'dev@localhost',
+  aud: 'authenticated',
+  role: 'authenticated',
+  created_at: new Date().toISOString(),
+  app_metadata: {},
+  user_metadata: {},
+} as User;
+
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
-  const [user, setUser] = useState<User | null>(null);
+  const [user, setUser] = useState<User | null>(DEV_BYPASS_AUTH ? mockDevUser : null);
   const [session, setSession] = useState<Session | null>(null);
-  const [isAdmin, setIsAdmin] = useState(false);
-  const [isLoading, setIsLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(DEV_BYPASS_AUTH);
+  const [isLoading, setIsLoading] = useState(!DEV_BYPASS_AUTH);
 
   const checkAdminRole = async (userId: string) => {
     const { data, error } = await (supabase as any)
@@ -37,6 +51,12 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   };
 
   useEffect(() => {
+    // Skip real auth if dev bypass is enabled
+    if (DEV_BYPASS_AUTH) {
+      console.warn('⚠️ DEV AUTH BYPASS ENABLED - Remove before production!');
+      return;
+    }
+
     // Set up auth state listener FIRST
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
