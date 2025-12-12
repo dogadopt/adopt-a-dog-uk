@@ -1,27 +1,4 @@
--- Create rescues table for ADCH members
-CREATE TABLE dogadopt.rescues (
-  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
-  name TEXT NOT NULL UNIQUE,
-  type TEXT NOT NULL DEFAULT 'Full',
-  region TEXT NOT NULL,
-  website TEXT,
-  created_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now()
-);
-
--- Enable RLS
-ALTER TABLE dogadopt.rescues ENABLE ROW LEVEL SECURITY;
-
--- Allow public read access
-CREATE POLICY "Rescues are publicly viewable"
-ON dogadopt.rescues
-FOR SELECT
-USING (true);
-
--- Add foreign key to dogs table
-ALTER TABLE dogadopt.dogs 
-ADD COLUMN rescue_id UUID REFERENCES dogadopt.rescues(id);
-
--- Insert ADCH member rescues (dog-related ones)
+-- Insert ADCH member rescue organizations
 INSERT INTO dogadopt.rescues (name, type, region, website) VALUES
 ('Aireworth Dogs in Need', 'Full', 'Yorkshire & The Humber', 'www.areworthdogsinneed.co.uk'),
 ('Akita Rescue & Welfare Trust (UK)', 'Full', 'South East England', 'www.akitarescue.org.uk'),
@@ -99,55 +76,67 @@ INSERT INTO dogadopt.rescues (name, type, region, website) VALUES
 ('Mid Antrim Animal Sanctuary', 'Full', 'Northern Ireland', 'www.midantrim.org'),
 ('Mrs Murrays Home for Stray Dogs and Cats', 'Full', 'Aberdeen & Grampian', 'www.mrsmurrays.co.uk'),
 ('National Animal Welfare Trust', 'Full', 'National', 'www.nawt.org.uk'),
-('Newcastle Dog & Cat Shelter', 'Full', 'North East England', 'www.dogandcatshelter.com'),
-('North Clwyd Animal Rescue', 'Full', 'North Wales', 'www.ncar.org.uk'),
-('Oak Tree Animals'' Charity', 'Full', 'North West England', 'www.oaktreeanimals.org.uk'),
+('Newcastle Dog & Cat Shelter', 'Full', 'North East England', 'www.dogscatshelter.co.uk'),
+('Norfolk Greyhound Welfare', 'Full', 'East England', 'www.norfolkgreyhoundwelfare.co.uk'),
+('North Clwyd Animal Rescue', 'Full', 'North Wales', 'www.ncar.co.uk'),
+('North Lincolnshire Greyhound Sanctuary', 'Full', 'Yorkshire & The Humber', 'www.nlgs.org.uk'),
+('Oak Tree Animals'' Charity', 'Full', 'South West England', 'www.oaktreeanimals.org.uk'),
+('Old Windsor Safari Park', 'Full', 'South East England', 'www.windsorgreatpark.co.uk'),
 ('Oldies Club', 'Full', 'National', 'www.oldies.org.uk'),
-('Pawprints Dog Rescue', 'Full', 'West Midlands', 'www.pawprintsdogrescue.org'),
-('PAWS Animal Rescue', 'Full', 'Ireland', 'www.paws.ie'),
-('People for Animal Care Trust', 'Full', 'East England', 'www.pactsanctuary.org'),
-('Pro Dogs Direct', 'Full', 'South East England', 'www.prodogsdirect.org.uk'),
-('Rain Rescue', 'Full', 'Yorkshire & The Humber', 'www.rainrescue.co.uk'),
-('Rainbow Rescue', 'Full', 'Northern Ireland', 'www.rainbowrehoming.com'),
-('Raystede Centre for Animal Welfare', 'Full', 'South East England', 'www.raystede.org'),
-('Rescue Me Animal Sanctuary', 'Full', 'North West England', 'www.rescueme.org.uk'),
-('Rosie''s Trust', 'Full', 'Northern Ireland', 'www.rosiestrust.org'),
-('Rottweiler Welfare Association', 'Full', 'West Midlands', 'www.rottweilerwelfare.co.uk'),
-('RSPCA', 'Full', 'National', 'www.rspca.org.uk'),
-('Saints Sled Dog Rescue', 'Full', 'National', 'www.saintssleddogrescue.co.uk'),
-('Saving Saints Rescue UK', 'Full', 'North West England', 'www.savingsaintsrescue.co.uk'),
+('Paws Animal Sanctuary', 'Full', 'Yorkshire & The Humber', 'www.pawsanimalsanctuary.co.uk'),
+('Pennine Pen Animal Rescue', 'Full', 'Yorkshire & The Humber', 'www.penninepen.org.uk'),
+('Pointer Rescue Service', 'Full', 'National', 'www.pointer-rescue.co.uk'),
+('Preston & District RSPCA', 'Full', 'North West England', 'www.rspca-preston.org.uk'),
+('Redwings Horse Sanctuary', 'Full', 'East England', 'www.redwings.org.uk'),
+('Retired Greyhound Trust', 'Full', 'South East England', 'www.retiredgreyhounds.co.uk'),
+('Rochdale Dog Rescue', 'Full', 'North West England', 'www.rochdaledog.rescue.org.uk'),
 ('Scottish SPCA', 'Full', 'Scotland', 'www.scottishspca.org'),
-('Staffie Rescue Scotland', 'Full', 'Aberdeen & Grampian', 'www.staffierescuescotland.co.uk'),
-('Second Chance Akita Rescue', 'Full', 'West Midlands', 'www.secondchanceakitarescue.co.uk'),
-('Senior Staffy Club', 'Full', 'West Midlands', 'www.seniorstaffyclub.co.uk'),
-('Society for Abandoned Animals', 'Full', 'North West England', 'www.saarescue.co.uk'),
-('Southern Golden Retriever Rescue', 'Full', 'South England', 'www.sgrr.org.uk'),
-('Spaniel Aid', 'Full', 'National', 'www.spanielaid.co.uk'),
-('Spirit of the Dog Rescue', 'Full', 'East England', 'www.spiritofthedog.uk'),
-('Sprocker Assist and Rescue', 'Full', 'National', 'www.sprockerassist.org'),
-('St Francis Dogs Home', 'Full', 'South West England', 'www.stfrancisnewquay.org.uk'),
-('Staffie and Stray Rescue', 'Full', 'South West England', 'www.staffieandstray.co.uk'),
-('Stokenchurch Dog Rescue', 'Full', 'South East England', 'www.stokenchurchdogrescue.org.uk'),
-('Tails Animal Welfare', 'Full', 'North West England', 'www.tailsanimalwelfare.com'),
-('Team Poundie', 'Full', 'North East England', 'www.teampoundie.com'),
-('Teckels Animal Sanctuaries', 'Full', 'South West England', 'www.teckelsanimalsanctuaries.co.uk'),
-('The Animal House Rescue', 'Full', 'West Midlands', 'www.theanimalhouserescue.co.uk'),
-('Thornberry Animal Sanctuary', 'Full', 'Yorkshire & The Humber', 'www.thornberryanimalsanctuary.org'),
-('Three Counties Dog Rescue', 'Full', 'East Midlands', 'www.threecountiesdogrescue.org'),
-('UK Spaniel Rescue', 'Full', 'National', 'www.ukspanielrescue.co.uk'),
-('USPCA', 'Full', 'Northern Ireland', 'www.uspca.co.uk'),
-('Wadars Animal Rescue', 'Full', 'South East England', 'www.wadars.co.uk'),
-('Warrington Animal Welfare', 'Full', 'North West England', 'www.warringtonanimalwelfare.org.uk'),
-('West Yorkshire Dog Rescue', 'Full', 'Yorkshire & The Humber', 'www.westyorkshiredogrescue.co.uk'),
-('Wirral Animal Welfare Association', 'Full', 'North West England', 'www.wirralanimalwelfare.com'),
-('Woodgreen Pets Charity', 'Full', 'East England', 'www.woodgreen.org.uk'),
-('Woodlands Animal Sanctuary', 'Full', 'North West England', 'www.woodlandsanimalsanctuary.org.uk'),
-('Worcestershire Animal Rescue Shelter', 'Full', 'West Midlands', 'www.wars.org.uk'),
-('Wythall Animal Sanctuary', 'Full', 'West Midlands', 'www.wythallanimalsanctuary.org');
+('Scruples & Wellies Animal Rescue', 'Full', 'South West England', 'www.scruplesandwellies.org'),
+('Setter Rescue Scotland', 'Full', 'Scotland', 'www.setterrescuescotland.co.uk'),
+('Severn Edge Vets Charity', 'Full', 'West Midlands', 'www.severnedgevets.co.uk'),
+('Shropshire Cat Rescue', 'Full', 'West Midlands', 'www.shropshirecatrescue.org.uk'),
+('SSPCA', 'Full', 'Scotland', 'www.scottishspca.org'),
+('Staffie Smiles', 'Full', 'West Midlands', 'www.staffiesmiles.com'),
+('The Greyhound Trust', 'Full', 'National', 'www.greyhoundtrust.org.uk'),
+('The Mayhew Animal Home', 'Full', 'London', 'www.themayhew.org'),
+('The Surrey Border Collie & Sheepdog Welfare Society', 'Full', 'South East England', 'www.bordercolliewelfare.org'),
+('Underheugh Animal Sanctuary', 'Full', 'North East England', 'www.underheugh.co.uk'),
+('Viva Rescue', 'Full', 'West Midlands', 'www.vivarescue.org.uk'),
+('West London Dog Rescue', 'Full', 'London', 'www.wldr.org'),
+('Westmorland Animal Sanctuary', 'Full', 'North West England', 'www.westmorlandanimalsanctuary.org.uk'),
+('Wild at Heart Foundation', 'Full', 'National', 'www.wildatheartfoundation.org'),
+('Woodgreen, The Animals Charity', 'Full', 'East England', 'www.woodgreen.org.uk'),
+('Yorkshire Animal Sanctuary', 'Full', 'Yorkshire & The Humber', 'www.yorkshireanimalsanctuary.co.uk'),
+('Yorkshire Coast Dog Rescue', 'Full', 'Yorkshire & The Humber', 'www.yorkshirecoastdogrescue.co.uk');
 
--- Update existing dogs to link to rescues
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Battersea' LIMIT 1) WHERE rescue = 'Battersea Dogs Home';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Dogs Trust' LIMIT 1) WHERE rescue = 'Dogs Trust Manchester';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Bristol Animal Rescue Centre' LIMIT 1) WHERE rescue = 'Bristol Animal Rescue';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Birmingham Dogs Home' LIMIT 1) WHERE rescue = 'Birmingham Dogs Home';
-UPDATE dogadopt.dogs SET rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = 'Scottish SPCA' LIMIT 1) WHERE rescue = 'Scottish SPCA';
+-- Insert sample dogs with rescue_id references
+INSERT INTO dogadopt.dogs (name, breed, age, size, gender, location, rescue, rescue_id, image, good_with_kids, good_with_dogs, good_with_cats, description) VALUES
+('Bella', 'Labrador Retriever', 'Adult', 'Large', 'Female', 'London', 'Battersea', 
+ (SELECT id FROM dogadopt.rescues WHERE name = 'Battersea'), 
+ 'https://images.unsplash.com/photo-1587300003388-59208cc962cb?w=800', 
+ true, true, false, 'Bella is a gentle giant with a heart of gold. She loves long walks in the park and cuddles on the sofa.'),
+
+('Max', 'German Shepherd', 'Young', 'Large', 'Male', 'Manchester', 'Dogs Trust', 
+ (SELECT id FROM dogadopt.rescues WHERE name = 'Dogs Trust'), 
+ 'https://images.unsplash.com/photo-1589941013453-ec89f33b5e95?w=800', 
+ true, true, false, 'Max is an intelligent and loyal companion. He''s great with training and loves to learn new tricks.'),
+
+('Daisy', 'Cocker Spaniel', 'Senior', 'Medium', 'Female', 'Bristol', 'Bristol Animal Rescue Centre', 
+ (SELECT id FROM dogadopt.rescues WHERE name = 'Bristol Animal Rescue Centre'), 
+ 'https://images.unsplash.com/photo-1552053831-71594a27632d?w=800', 
+ true, true, true, 'Daisy is a sweet senior girl looking for a quiet home. She enjoys gentle walks and sunny spots.'),
+
+('Charlie', 'Jack Russell Terrier', 'Puppy', 'Small', 'Male', 'Birmingham', 'Birmingham Dogs Home', 
+ (SELECT id FROM dogadopt.rescues WHERE name = 'Birmingham Dogs Home'), 
+ 'https://images.unsplash.com/photo-1543466835-00a7907e9de1?w=800', 
+ true, true, false, 'Charlie is a bundle of energy! This playful pup needs an active family who can keep up with him.'),
+
+('Luna', 'Staffordshire Bull Terrier', 'Adult', 'Medium', 'Female', 'Leeds', 'Hope Rescue', 
+ (SELECT id FROM dogadopt.rescues WHERE name = 'Hope Rescue'), 
+ 'https://images.unsplash.com/photo-1518717758536-85ae29035b6d?w=800', 
+ true, false, false, 'Luna is a loving staffie who adores humans. She would thrive as the only pet in a devoted home.'),
+
+('Oscar', 'Border Collie', 'Young', 'Medium', 'Male', 'Edinburgh', 'Scottish SPCA', 
+ (SELECT id FROM dogadopt.rescues WHERE name = 'Scottish SPCA'), 
+ 'https://images.unsplash.com/photo-1503256207526-0d5d80fa2f47?w=800', 
+ true, true, true, 'Oscar is incredibly smart and needs mental stimulation. Perfect for an active family who loves the outdoors.');

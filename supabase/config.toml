@@ -1,1 +1,12 @@
 project_id = "xtpzojedvznsmdpvdjop"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "dogadopt"]
+extra_search_path = ["public", "dogadopt"]
+max_rows = 1000
+
+[db]
+port = 54322
+major_version = 15

@@ -1,0 +1,340 @@
+version: "3"
+
+vars:
+  PROJECT_NAME: adopt-a-dog-uk
+  NODE_VERSION: ">=18.0.0"
+
+tasks:
+  default:
+    desc: List all available tasks
+    cmds:
+      - task --list
+
+  # === QUICK START (no external deps) ===
+  quick-start:
+    desc: Instant setup without external dependencies
+    deps: [install]
+    cmds:
+      - task: setup-env
+      - echo "Quick setup complete!"
+      - echo "Run 'npm run dev' to begin developing"
+
+  start:
+    desc: Alias for npm run dev (quick development)
+    cmds:
+      - npm run dev
+
+  # === DEVELOPMENT (full setup) ===
+  setup:
+    desc: Complete first-time project setup (dependencies + env + database)
+    cmds:
+      - task: check-deps
+      - task: install
+      - task: setup-env
+      - echo ""
+      - echo "Setup complete!"
+      - echo ""
+      - echo "Next steps:"
+      - echo "  • task dev                (start development)"
+      - echo "  • npm run dev             (quick start without database)"
+      - echo "  • task setup-dogs         (demo dog data upload)"
+      - echo ""
+      - echo "See README.md for development guide"
+      - echo ""
+
+  setup:minimal:
+    desc: Minimal setup for quick testing (no external tools)
+    deps: [install]
+    cmds:
+      - task: setup-env
+      - echo "Minimal setup complete! Run 'npm run dev' to begin"
+
+  dev:
+    desc: Start development environment (database + dev server)
+    deps: [install, db:start]
+    cmds:
+      - echo "Starting development server..."
+      - echo ""
+      - echo "Supabase Studio - http://localhost:54323"
+      - echo "API - http://localhost:54321"
+      - echo "App will start at - http://localhost:8080"
+      - echo ""
+      - task: upload-dogs-if-needed
+      - npm run dev
+
+  dev-only:
+    desc: Start dev server only (assumes database is running)
+    deps: [install]
+    cmds:
+      - echo "Starting dev server..."
+      - npm run dev
+
+  # === DATABASE ===
+
+  # === DATABASE ===
+  install-supabase:
+    desc: Install Supabase CLI if not present
+    cmds:
+      - |
+        if ! command -v supabase &> /dev/null; then
+          echo "Supabase CLI not found, installing..."
+          
+          # Detect OS
+          OS=$(uname -s | tr '[:upper:]' '[:lower:]')
+          ARCH=$(uname -m)
+          
+          # Map architecture names
+          case $ARCH in
+            x86_64) ARCH="amd64" ;;
+            aarch64|arm64) ARCH="arm64" ;;
+            armv7l) ARCH="arm" ;;
+          esac
+          
+          # Download and install
+          LATEST_VERSION=$(curl -s https://api.github.com/repos/supabase/cli/releases/latest | grep -o '"tag_name": "[^"]*' | cut -d'"' -f4)
+          DOWNLOAD_URL="https://github.com/supabase/cli/releases/latest/download/supabase_${OS}_${ARCH}.tar.gz"
+          
+          echo "Downloading Supabase CLI $LATEST_VERSION for $OS/$ARCH..."
+          
+          # Create temporary directory and extract there
+          TEMP_DIR=$(mktemp -d)
+          curl -sSL "$DOWNLOAD_URL" | tar -xz -C "$TEMP_DIR"
+          
+          # Move to system PATH
+          sudo mv "$TEMP_DIR/supabase" /usr/local/bin/supabase
+          rm -rf "$TEMP_DIR"
+          
+          # Verify installation
+          echo "Supabase CLI installed successfully: $(supabase --version)"
+        else
+          echo "Supabase CLI already installed: $(supabase --version)"
+        fi
+
+  db:start:
+    desc: Start local Supabase database
+    deps: [install-supabase]
+    cmds:
+      - echo "Starting Supabase..."
+      - supabase start
+      - echo "Database running!"
+      - echo "Studio - http://localhost:54323"
+      - echo "API - http://localhost:54321"
+
+  db:stop:
+    desc: Stop local database
+    deps: [install-supabase]
+    cmds:
+      - supabase stop
+
+  db:reset:
+    desc: Reset database (deletes all data)
+    deps: [install-supabase]
+    cmds:
+      - echo "This will delete all local data!"
+      - supabase db reset
+
+  db:status:
+    desc: Check database status
+    deps: [install-supabase]
+    cmds:
+      - supabase status
+
+  db:migrate:
+    desc: Apply pending database migrations (local development)
+    deps: [install-supabase]
+    cmds:
+      - echo "For local development, migrations are applied automatically when starting the database."
+      - echo "If you need to manually apply migrations, try:"
+      - echo "  1. task db:reset  (full reset with migrations)"
+      - echo "  2. task db:stop && task db:start  (restart to apply new migrations)"
+      - supabase status
+
+  db:migration:new:
+    desc: Create a new database migration
+    deps: [install-supabase]
+    cmds:
+      - |
+        if [ -z "{{.CLI_ARGS}}" ]; then
+          echo "Usage: task db:migration:new -- migration_name"
+          echo "Example: task db:migration:new -- add_user_preferences"
+          exit 1
+        fi
+        supabase migration new "{{.CLI_ARGS}}"
+
+  # === UTILITIES ===
+  test:
+    desc: Run all quality checks (lint + typecheck)
+    deps: [install]
+    cmds:
+      - task: lint
+      - task: typecheck
+      - echo "All checks passed!"
+
+  test:e2e:
+    desc: Run end-to-end tests with Playwright
+    deps: [install]
+    cmds:
+      - npm run test:e2e
+
+  test:e2e:headless:
+    desc: Run end-to-end tests in headless mode
+    deps: [install]
+    cmds:
+      - npm run test:e2e:headless
+
+  test:e2e:ui:
+    desc: Run end-to-end tests with UI
+    deps: [install]
+    cmds:
+      - npm run test:e2e:ui
+
+  test:smoke:
+    desc: Run simple smoke test on localhost
+    deps: [install]
+    cmds:
+      - npm run test:smoke
+
+  test:smoke:prod:
+    desc: Run smoke test against production site
+    deps: [install]
+    cmds:
+      - npm run test:smoke:prod
+
+  build:
+    desc: Build for production
+    deps: [install]
+    cmds:
+      - npm run build
+
+  clean:
+    desc: Clean build artifacts
+    cmds:
+      - rm -rf dist || true
+      - rm -rf node_modules || true
+      - rm -rf .vite || true
+      - echo "Cleaned"
+
+  preview:
+    desc: Preview production build
+    deps: [build]
+    cmds:
+      - npm run preview
+
+  # === DOG DATA MANAGEMENT ===
+  upload-dogs:
+    desc: Upload dog data to Supabase database
+    deps: [install]
+    cmds:
+      - npm run upload-dogs
+
+  upload-dogs-if-needed:
+    desc: Upload dog data only if database is empty
+    deps: [install]
+    cmds:
+      - |
+        echo "🐕 Checking for existing dogs and uploading if needed..."
+        npm run upload-dogs || echo "⚠️  Dog data upload failed, continuing..."
+
+  setup-dogs:
+    desc: Interactive demo of dog data upload system
+    deps: [install]
+    cmds:
+      - ./bin/demo-upload.sh
+
+  supabase:start:
+    desc: Start Supabase (alias for db:start)
+    deps: [db:start]
+
+  # Code Quality
+  lint:
+    desc: Run ESLint
+    deps: [install]
+    cmds:
+      - npm run lint
+
+  lint:fix:
+    desc: Auto-fix linting issues
+    deps: [install]
+    cmds:
+      - npm run lint -- --fix
+
+  typecheck:
+    desc: Run TypeScript checking
+    deps: [install]
+    cmds:
+      - npm run typecheck
+
+  # Utilities
+  install:
+    desc: Install dependencies
+    cmds:
+      - npm install
+    sources:
+      - package.json
+      - package-lock.json
+    generates:
+      - node_modules/**/*
+
+  # Internal Tasks
+  check-deps:
+    desc: Check required development tools
+    cmds:
+      - |
+        echo "Checking dependencies..."
+        echo ""
+
+        # Check Node.js
+        if ! command -v node &> /dev/null; then
+          echo "Node.js not found! Please install Node.js >= 18.0.0"
+          exit 1
+        fi
+        echo "Node.js $(node --version)"
+
+        # Check npm
+        if ! command -v npm &> /dev/null; then
+          echo "npm not found!"
+          exit 1
+        fi
+        echo "npm $(npm --version)"
+
+        # Check Docker
+        if ! command -v docker &> /dev/null; then
+          echo "WARNING: Docker not found (required for local database)"
+          echo "   Install: https://docs.docker.com/get-docker/"
+        else
+          echo "Docker $(docker --version | cut -d' ' -f3 | tr -d ',')"
+        fi
+
+        # Check Supabase CLI
+        if ! command -v supabase &> /dev/null; then
+          echo "Supabase CLI not found (will be auto-installed when needed)"
+        else
+          echo "Supabase CLI $(supabase --version)"
+        fi
+
+        echo ""
+        echo "Dependency check complete"
+
+  setup-env:
+    desc: Create environment files
+    cmds:
+      - |
+        if [ ! -f .env.local ]; then
+          echo "Creating .env.local..."
+          cat > .env.local <<EOF
+        # Local Development (Supabase Local)
+        VITE_SUPABASE_URL=http://localhost:54321
+        VITE_SUPABASE_ANON_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0
+        SUPABASE_SERVICE_ROLE_KEY=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6InNlcnZpY2Vfcm9sZSIsImV4cCI6MTk4MzgxMjk5Nn0.EGIM96RAZx35lJzdJsyH-qQwv8Hdp7fsn3W0YpN81IU
+        EOF
+          echo "Created .env.local"
+        else
+          echo ".env.local exists"
+        fi
+        
+        # Check if .env exists for production config
+        if [ ! -f .env ]; then
+          echo "Note: .env file not found. Using existing production config."
+        else
+          echo "Production .env file exists"
+        fi
