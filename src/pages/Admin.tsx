@@ -16,11 +16,12 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Heart, Loader2, Plus, Pencil, Trash2, LogOut, ArrowLeft, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { BreedCombobox } from '@/components/BreedCombobox';
 import type { Dog } from '@/types/dog';
 
 interface DogFormData {
   name: string;
-  breed: string;
+  breeds: string[];
   age: string;
   size: string;
   gender: string;
@@ -35,7 +36,7 @@ interface DogFormData {
 
 const initialFormData: DogFormData = {
   name: '',
-  breed: '',
+  breeds: [],
   age: 'Adult',
   size: 'Medium',
   gender: 'Male',
@@ -87,9 +88,11 @@ const Admin = () => {
       setEditingDog(dog);
       // Find rescue_id from rescue name
       const rescue = rescues.find(r => r.name === dog.rescue);
+      // Parse breeds from the breed string (could be comma-separated)
+      const breeds = dog.breeds || (dog.breed ? dog.breed.split(',').map(b => b.trim()) : []);
       setFormData({
         name: dog.name,
-        breed: dog.breed,
+        breeds: breeds,
         age: dog.age,
         size: dog.size,
         gender: dog.gender,
@@ -157,6 +160,13 @@ const Admin = () => {
     setIsSubmitting(true);
 
     try {
+      // Validate breeds
+      if (formData.breeds.length === 0) {
+        toast({ title: 'Error', description: 'Please select at least one breed', variant: 'destructive' });
+        setIsSubmitting(false);
+        return;
+      }
+
       let imageUrl = formData.image;
 
       // Upload new image if selected
@@ -173,9 +183,11 @@ const Admin = () => {
       }
 
       const rescue = rescues.find(r => r.id === formData.rescue_id);
+      // Store breeds as comma-separated for backward compatibility
+      const breedString = formData.breeds.join(', ');
       const dogData = {
         name: formData.name,
-        breed: formData.breed,
+        breed: breedString,
         age: formData.age,
         size: formData.size,
         gender: formData.gender,
@@ -299,25 +311,26 @@ const Admin = () => {
                 <DialogTitle>{editingDog ? 'Edit Dog' : 'Add New Dog'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="breed">Breed</Label>
-                    <Input
-                      id="breed"
-                      value={formData.breed}
-                      onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Breed(s)</Label>
+                  <BreedCombobox
+                    value={formData.breeds}
+                    onChange={(breeds) => setFormData({ ...formData, breeds })}
+                    placeholder="Select one or more breeds..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Select multiple breeds for cross-breeds or mixes
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">

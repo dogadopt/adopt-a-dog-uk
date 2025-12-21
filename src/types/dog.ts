@@ -1,7 +1,8 @@
 export interface Dog {
   id: string;
   name: string;
-  breed: string;
+  breed: string; // For backward compatibility - comma-separated breeds
+  breeds?: string[]; // Multiple breeds array
   age: string;
   size: 'Small' | 'Medium' | 'Large';
   gender: 'Male' | 'Female';
