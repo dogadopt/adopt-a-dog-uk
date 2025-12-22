@@ -5,7 +5,6 @@ import type { Dog } from '@/types/dog';
 interface DogRow {
   id: string;
   name: string;
-  breed: string;
   age: string;
   size: string;
   gender: string;
@@ -47,7 +46,7 @@ export const useDogs = () => {
             region,
             website
           ),
-          dog_breeds!inner (
+          dog_breeds (
             display_order,
             breeds (
               id,
@@ -62,11 +61,10 @@ export const useDogs = () => {
       }
 
       return (data as unknown as DogRow[]).map((dog) => {
-        // Get breeds from many-to-many relationship, fallback to breed column
+        // Get breeds from many-to-many relationship
         const breeds = dog.dog_breeds
           ?.sort((a, b) => a.display_order - b.display_order)
-          .map((db) => db.breeds.name) || 
-          (dog.breed ? dog.breed.split(',').map(b => b.trim()) : []);
+          .map((db) => db.breeds.name) || [];
 
         return {
           id: dog.id,

@@ -192,7 +192,6 @@ const Admin = () => {
       
       const dogData = {
         name: formData.name,
-        breed: formData.breeds.join(', '), // Legacy column for backward compatibility
         age: formData.age,
         size: formData.size,
         gender: formData.gender,
