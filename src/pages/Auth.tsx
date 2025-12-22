@@ -9,6 +9,7 @@ import { Heart, Loader2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { z } from 'zod';
 import { Separator } from '@/components/ui/separator';
+import { DevBypassBanner } from '@/components/auth/DevBypassBanner';
 
 const authSchema = z.object({
   email: z.string().trim().email({ message: 'Invalid email address' }),
@@ -96,11 +97,7 @@ const Auth = () => {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-background p-4">
-      {isDevBypass && (
-        <div className="fixed top-4 right-4 z-50 bg-yellow-500/10 border border-yellow-500 text-yellow-700 dark:text-yellow-400 px-4 py-2 rounded-lg text-sm font-medium">
-          🔓 Dev Mode: Auth Bypassed
-        </div>
-      )}
+      {isDevBypass && <DevBypassBanner />}
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
