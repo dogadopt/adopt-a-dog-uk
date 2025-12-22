@@ -120,8 +120,14 @@ LANGUAGE plpgsql
 SECURITY DEFINER SET search_path = dogadopt
 AS $$
 BEGIN
-  INSERT INTO dogadopt.profiles (id, email)
-  VALUES (new.id, new.email);
+  -- Create profile for new user
+  INSERT INTO dogadopt.profiles (id)
+  VALUES (new.id);
+  
+  -- Grant default 'user' role to new user
+  INSERT INTO dogadopt.user_roles (user_id, role)
+  VALUES (new.id, 'user');
+  
   RETURN new;
 END;
 $$;
