@@ -50,7 +50,7 @@ WITH inserted_dogs AS (
   RETURNING id, name
 )
 -- Then, link dogs to breeds
-INSERT INTO dogadopt.dog_breeds (dog_id, breed_id, display_order)
+INSERT INTO dogadopt.dogs_breeds (dog_id, breed_id, display_order)
 SELECT 
   d.id,
   b.id,

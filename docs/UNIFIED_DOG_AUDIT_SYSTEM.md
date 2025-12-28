@@ -8,17 +8,17 @@ The unified dog audit system provides comprehensive audit logging for all change
 
 ### Core Components
 
-1. **Single Audit Log Table**: `dogadopt.dog_audit_log`
-   - Captures all changes from both `dogs` and `dog_breeds` tables
+1. **Single Audit Log Table**: `dogadopt.dogs_audit_logs`
+   - Captures all changes from both `dogs` and `dogs_breeds` tables
    - Stores complete resolved snapshots including foreign key relationships
    - Supports INSERT, UPDATE, and DELETE operations
 
 2. **Unified Data View**: `dogadopt.dogs_complete`
-   - Consolidates `dogs_resolved` and `dogs_with_breeds` views
+   - Single comprehensive view for all dog data
    - Provides complete dog data with breeds and relationships resolved
    - Used by audit system to capture complete state
 
-3. **Resolved Audit View**: `dogadopt.dog_audit_log_resolved`
+3. **Resolved Audit View**: `dogadopt.dogs_audit_logs_resolved`
    - Single comprehensive view for all audit queries
    - Human-readable audit log with all foreign keys resolved
    - Shows before/after states for all fields
@@ -39,10 +39,10 @@ The unified dog audit system provides comprehensive audit logging for all change
 
 ## Database Schema
 
-### dog_audit_log Table
+### dogs_audit_logs Table
 
 ```sql
-CREATE TABLE dogadopt.dog_audit_log (
+CREATE TABLE dogadopt.dogs_audit_logs (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
   dog_id UUID NOT NULL,
   operation TEXT NOT NULL CHECK (operation IN ('INSERT', 'UPDATE', 'DELETE')),
@@ -65,7 +65,7 @@ CREATE TABLE dogadopt.dog_audit_log (
 
 ### Available Views
 
-**`dog_audit_log_resolved`**: Single comprehensive audit log view with all fields resolved
+**`dogs_audit_logs_resolved`**: Single comprehensive audit log view with all fields resolved
 
 Fields include:
 - **Audit Info**: audit_id, dog_id, operation, changed_at, changed_by, changed_by_email, changed_by_name
@@ -89,7 +89,7 @@ This single view replaces multiple specialized views and provides all necessary 
 
 ```sql
 SELECT *
-FROM dogadopt.dog_audit_log_resolved
+FROM dogadopt.dogs_audit_logs_resolved
 WHERE dog_name = 'Bella'
 ORDER BY changed_at;
 ```
@@ -98,7 +98,7 @@ ORDER BY changed_at;
 
 ```sql
 SELECT dog_name, old_status, new_status, changed_at
-FROM dogadopt.dog_audit_log_resolved
+FROM dogadopt.dogs_audit_logs_resolved
 WHERE old_status IS DISTINCT FROM new_status
 ORDER BY changed_at DESC;
 ```
@@ -107,7 +107,7 @@ ORDER BY changed_at DESC;
 
 ```sql
 SELECT dog_name, old_breeds, new_breeds, sub_operation, changed_at
-FROM dogadopt.dog_audit_log_resolved
+FROM dogadopt.dogs_audit_logs_resolved
 WHERE old_breeds IS DISTINCT FROM new_breeds
 ORDER BY changed_at;
 ```
@@ -116,7 +116,7 @@ ORDER BY changed_at;
 
 ```sql
 SELECT changed_at, operation, change_summary, changed_fields, sub_operation
-FROM dogadopt.dog_audit_log_resolved
+FROM dogadopt.dogs_audit_logs_resolved
 WHERE dog_name = 'Luna'
 ORDER BY changed_at;
 ```
@@ -126,14 +126,14 @@ ORDER BY changed_at;
 ```sql
 -- Show only changes originating from the dogs table
 SELECT dog_name, operation, change_summary, changed_at
-FROM dogadopt.dog_audit_log_resolved
+FROM dogadopt.dogs_audit_logs_resolved
 WHERE source_table = 'dogs'
 ORDER BY changed_at DESC;
 
 -- Show only breed-related changes
 SELECT dog_name, old_breeds, new_breeds, sub_operation
-FROM dogadopt.dog_audit_log_resolved
-WHERE source_table = 'dog_breeds'
+FROM dogadopt.dogs_audit_logs_resolved
+WHERE source_table = 'dogs_breeds'
 ORDER BY changed_at DESC;
 ```
 

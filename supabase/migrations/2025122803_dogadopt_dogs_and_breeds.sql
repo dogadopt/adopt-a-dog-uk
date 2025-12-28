@@ -140,17 +140,6 @@ INSERT INTO dogadopt.breeds (name) VALUES
   ('Bernedoodle'), ('Sheepadoodle')
 ON CONFLICT (name) DO NOTHING;
 
--- Create view for easy querying of dogs with breeds
-CREATE OR REPLACE VIEW dogadopt.dogs_with_breeds AS
-SELECT 
-  d.*,
-  string_agg(b.name, ', ' ORDER BY db.display_order) AS breed,
-  array_agg(b.name ORDER BY db.display_order) FILTER (WHERE b.name IS NOT NULL) AS breeds_array
-FROM dogadopt.dogs d
-LEFT JOIN dogadopt.dog_breeds db ON d.id = db.dog_id
-LEFT JOIN dogadopt.breeds b ON db.breed_id = b.id
-GROUP BY d.id;
-
 -- Helper function to manage dog breeds
 CREATE OR REPLACE FUNCTION dogadopt.set_dog_breeds(
   p_dog_id UUID,
@@ -239,55 +228,6 @@ BEGIN
   END IF;
 END;
 $$;
-
--- Create view of fully resolved dog data for audit logging
-CREATE OR REPLACE VIEW dogadopt.dogs_resolved AS
-SELECT 
-  d.id,
-  d.name,
-  d.age,
-  d.size,
-  d.gender,
-  d.image,
-  d.description,
-  d.good_with_kids,
-  d.good_with_dogs,
-  d.good_with_cats,
-  d.status,
-  d.status_notes,
-  d.profile_url,
-  d.created_at,
-  
-  -- Resolved breeds
-  COALESCE(
-    array_agg(b.name ORDER BY db.display_order) FILTER (WHERE b.name IS NOT NULL),
-    ARRAY[]::TEXT[]
-  ) AS breeds,
-  COALESCE(
-    string_agg(b.name, ', ' ORDER BY db.display_order),
-    ''
-  ) AS breeds_display,
-  
-  -- Resolved rescue information
-  r.name AS rescue_name,
-  r.id AS rescue_id,
-  r.region AS rescue_region,
-  r.website AS rescue_website,
-  
-  -- Resolved location information
-  l.name AS location_name,
-  l.id AS location_id,
-  l.region AS location_region,
-  l.enquiry_url AS location_enquiry_url
-  
-FROM dogadopt.dogs d
-LEFT JOIN dogadopt.dog_breeds db ON d.id = db.dog_id
-LEFT JOIN dogadopt.breeds b ON db.breed_id = b.id
-LEFT JOIN dogadopt.rescues r ON d.rescue_id = r.id
-LEFT JOIN dogadopt.locations l ON d.location_id = l.id
-GROUP BY 
-  d.id, r.name, r.id, r.region, r.website,
-  l.name, l.id, l.region, l.enquiry_url;
 
 -- Create comprehensive audit log table
 CREATE TABLE dogadopt.dog_audit_log (
@@ -476,8 +416,6 @@ GRANT SELECT ON dogadopt.dogs TO anon, authenticated;
 GRANT ALL ON dogadopt.dogs TO authenticated;
 GRANT SELECT ON dogadopt.breeds TO anon, authenticated;
 GRANT SELECT ON dogadopt.dog_breeds TO anon, authenticated;
-GRANT SELECT ON dogadopt.dogs_with_breeds TO anon, authenticated;
-GRANT SELECT ON dogadopt.dogs_resolved TO anon, authenticated;
 GRANT EXECUTE ON FUNCTION dogadopt.set_dog_breeds TO authenticated;
 GRANT EXECUTE ON FUNCTION dogadopt.get_dog_profile_url TO anon, authenticated;
 
@@ -510,5 +448,4 @@ COMMENT ON COLUMN dogadopt.dogs.profile_url IS 'Direct URL to this dog''s profil
 COMMENT ON TABLE dogadopt.breeds IS 'Reference table of dog breeds';
 COMMENT ON TABLE dogadopt.dog_breeds IS 'Junction table linking dogs to breeds (supports multi-breed dogs)';
 COMMENT ON FUNCTION dogadopt.set_dog_breeds IS 'Helper function to set breeds for a dog. Manages the many-to-many relationship.';
-COMMENT ON TABLE dogadopt.dog_audit_log IS 'Complete audit log with fully resolved dog snapshots. Enables event sourcing and time-travel queries. View dog_audit_log_resolved for human-readable audit data.';
-COMMENT ON VIEW dogadopt.dogs_resolved IS 'Dogs with all foreign keys resolved to human-readable values.';
+COMMENT ON TABLE dogadopt.dog_audit_log IS 'Complete audit log with fully resolved dog snapshots. Enables event sourcing and time-travel queries.';

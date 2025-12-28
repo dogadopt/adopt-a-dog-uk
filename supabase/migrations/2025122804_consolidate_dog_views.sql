@@ -1,7 +1,7 @@
--- Consolidate dogs_resolved and dogs_with_breeds into a single comprehensive view
--- This migration replaces both views with a unified dogs_complete view
+-- Create a single comprehensive dog view
+-- This replaces the previous dogs_resolved and dogs_with_breeds views
 
--- Drop the old views
+-- Drop the old views if they exist
 DROP VIEW IF EXISTS dogadopt.dogs_with_breeds CASCADE;
 DROP VIEW IF EXISTS dogadopt.dogs_resolved CASCADE;
 
