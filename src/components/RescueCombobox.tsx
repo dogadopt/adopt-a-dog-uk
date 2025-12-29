@@ -31,21 +31,10 @@ export function RescueCombobox({
   placeholder = "Select rescue organisation...",
 }: RescueComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [search, setSearch] = React.useState("");
 
   const selectedRescue = React.useMemo(() => {
     return rescues.find((rescue) => rescue.id === value);
   }, [rescues, value]);
-
-  const filteredRescues = React.useMemo(() => {
-    if (!search) return rescues;
-    const searchLower = search.toLowerCase();
-    return rescues.filter(
-      (rescue) =>
-        rescue.name.toLowerCase().includes(searchLower) ||
-        rescue.region.toLowerCase().includes(searchLower)
-    );
-  }, [search, rescues]);
 
   const handleSelect = (rescueId: string) => {
     onChange(rescueId === value ? "" : rescueId);
@@ -71,18 +60,17 @@ export function RescueCombobox({
         <Command>
           <CommandInput
             placeholder="Search rescue organisations..."
-            value={search}
-            onValueChange={setSearch}
           />
           <CommandList>
             <CommandEmpty>No rescue organisation found.</CommandEmpty>
             <CommandGroup>
-              {filteredRescues.map((rescue) => {
+              {rescues.map((rescue) => {
                 const isSelected = value === rescue.id;
                 return (
                   <CommandItem
                     key={rescue.id}
-                    value={rescue.id}
+                    value={rescue.name}
+                    keywords={[rescue.region]}
                     onSelect={() => handleSelect(rescue.id)}
                   >
                     <Check

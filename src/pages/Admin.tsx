@@ -401,20 +401,32 @@ const Admin = () => {
 
                 <div className="grid grid-cols-2 gap-4">
                   <div className="space-y-2">
-                    <Label htmlFor="location">Location</Label>
-                    <LocationCombobox
-                      value={formData.location}
-                      onChange={(location) => setFormData({ ...formData, location })}
-                      placeholder="Select or enter location..."
-                    />
-                  </div>
-                  <div className="space-y-2">
                     <Label htmlFor="rescue">Rescue Organisation</Label>
                     <RescueCombobox
                       value={formData.rescue_id}
-                      onChange={(rescue_id) => setFormData({ ...formData, rescue_id })}
+                      onChange={(rescue_id) => {
+                        // Auto-populate location with rescue's region when adding new dog
+                        if (!editingDog) {
+                          const selectedRescue = rescues.find(r => r.id === rescue_id);
+                          if (selectedRescue) {
+                            setFormData(prev => ({ ...prev, rescue_id, location: selectedRescue.region }));
+                          } else {
+                            setFormData(prev => ({ ...prev, rescue_id }));
+                          }
+                        } else {
+                          setFormData(prev => ({ ...prev, rescue_id }));
+                        }
+                      }}
                       rescues={rescues}
                       placeholder="Select rescue organisation..."
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <LocationCombobox
+                      value={formData.location}
+                      onChange={(location) => setFormData(prev => ({ ...prev, location }))}
+                      placeholder="Select or enter location..."
                     />
                   </div>
                 </div>
