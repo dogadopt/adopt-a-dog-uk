@@ -29,7 +29,7 @@ const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
   };
 
   const profileUrl = getDogProfileUrl();
-  const hasValidUrl = !!profileUrl;
+  const isProfileLinkEnabled = !!profileUrl;
 
   return (
     <article className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 hover:-translate-y-1">
@@ -91,10 +91,10 @@ const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
         <Button 
           variant="default" 
           className="w-full"
-          asChild={hasValidUrl}
-          disabled={!hasValidUrl}
+          asChild={isProfileLinkEnabled}
+          disabled={!isProfileLinkEnabled}
         >
-          {hasValidUrl ? (
+          {isProfileLinkEnabled ? (
             <a 
               href={profileUrl}
               target="_blank"

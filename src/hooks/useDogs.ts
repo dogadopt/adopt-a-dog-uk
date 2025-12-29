@@ -68,7 +68,7 @@ export const useDogs = () => {
           rescue: dog.rescues?.name || 'Unknown',
           rescueWebsite: dog.rescues?.website,
           image: dog.image || DEFAULT_DOG_IMAGE,
-          profileUrl: dog.profile_url || undefined,
+          profileUrl: dog.profile_url ?? undefined,
           goodWithKids: dog.good_with_kids,
           goodWithDogs: dog.good_with_dogs,
           goodWithCats: dog.good_with_cats,
