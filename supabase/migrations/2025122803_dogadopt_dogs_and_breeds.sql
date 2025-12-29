@@ -160,7 +160,7 @@ INSERT INTO dogadopt.breeds (name) VALUES
   ('Labrador Retriever'), ('Lakeland Terrier'), ('Lhasa Apso'), ('Maltese'),
   ('Manchester Terrier'), ('Mastiff'), ('Miniature Pinscher'), ('Miniature Schnauzer'),
   ('Mixed Breed'), ('Newfoundland'), ('Norfolk Terrier'), ('Norwegian Elkhound'),
-  ('Norwich Terrier'), ('Old English Sheepdog'), ('Papillon'), ('Pekingese'),
+  ('Norwich Terrier'), ('Old English Sheepdog'), ('Papillon'), ('Patterdale Terrier'), ('Pekingese'),
   ('Pembroke Welsh Corgi'), ('Pointer'), ('Pomeranian'), ('Poodle (Miniature)'),
   ('Poodle (Standard)'), ('Poodle (Toy)'), ('Portuguese Water Dog'), ('Pug'),
   ('Puli'), ('Rhodesian Ridgeback'), ('Rottweiler'), ('Saint Bernard'), ('Saluki'),
@@ -172,7 +172,7 @@ INSERT INTO dogadopt.breeds (name) VALUES
   ('Welsh Terrier'), ('West Highland White Terrier'), ('Whippet'),
   ('Wire Fox Terrier'), ('Yorkshire Terrier'),
   -- Common cross-breeds
-  ('Cockapoo'), ('Labradoodle'), ('Goldendoodle'), ('Cavapoo'), ('Puggle'),
+  ('Cockapoo'), ('Crossbreed'), ('Labradoodle'), ('Goldendoodle'), ('Cavapoo'), ('Puggle'),
   ('Yorkipoo'), ('Maltipoo'), ('Schnoodle'), ('Pomsky'), ('Aussiedoodle'),
   ('Bernedoodle'), ('Sheepadoodle')
 ON CONFLICT (name) DO NOTHING;
