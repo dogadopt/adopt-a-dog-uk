@@ -406,7 +406,7 @@ const Admin = () => {
                       placeholder="Select or enter location..."
                     />
                     <p className="text-xs text-muted-foreground">
-                      Location is stored for reference and auto-populated from rescue's region
+                      For reference only - location is auto-populated from rescue's region
                     </p>
                   </div>
                   <div className="space-y-2">
