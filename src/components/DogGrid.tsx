@@ -14,7 +14,7 @@ const DogGrid = () => {
   const [sizeFilter, setSizeFilter] = useState<SizeFilter>('All');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
   const [searchQuery, setSearchQuery] = useState('');
-  const [viewMode, setViewMode] = useState<ViewMode>('text-only');
+  const [viewMode, setViewMode] = useState<ViewMode>('with-images');
   const { data: dogs = [], isLoading, error } = useDogs();
 
   const filteredDogs = useMemo(() => {
@@ -69,9 +69,9 @@ const DogGrid = () => {
                   <Label htmlFor="text-only" className="cursor-pointer">Text Only</Label>
                 </div>
                 <div className="flex items-center space-x-2">
-                  <RadioGroupItem value="with-images" id="with-images" disabled />
-                  <Label htmlFor="with-images" className="cursor-not-allowed opacity-50">
-                    With Images <span className="text-xs text-muted-foreground">(Coming Soon)</span>
+                  <RadioGroupItem value="with-images" id="with-images" />
+                  <Label htmlFor="with-images" className="cursor-pointer">
+                    With Images
                   </Label>
                 </div>
               </RadioGroup>
