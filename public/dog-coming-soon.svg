@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="800" viewBox="0 0 800 800" fill="none">
+  <!-- Background -->
+  <rect width="800" height="800" fill="#F0F4F8" rx="20"/>
+  
+  <!-- Simple dog silhouette -->
+  <g transform="translate(200, 200)">
+    <!-- Dog body -->
+    <ellipse cx="200" cy="200" rx="120" ry="90" fill="#94A3B8"/>
+    
+    <!-- Dog head -->
+    <circle cx="200" cy="120" r="70" fill="#94A3B8"/>
+    
+    <!-- Left ear -->
+    <ellipse cx="160" cy="80" rx="30" ry="50" fill="#64748B"/>
+    
+    <!-- Right ear -->
+    <ellipse cx="240" cy="80" rx="30" ry="50" fill="#64748B"/>
+    
+    <!-- Left eye -->
+    <circle cx="180" cy="110" r="8" fill="#1E293B"/>
+    
+    <!-- Right eye -->
+    <circle cx="220" cy="110" r="8" fill="#1E293B"/>
+    
+    <!-- Nose -->
+    <ellipse cx="200" cy="135" rx="12" ry="10" fill="#1E293B"/>
+    
+    <!-- Mouth -->
+    <path d="M 200 135 Q 185 145 175 140" stroke="#1E293B" stroke-width="3" fill="none" stroke-linecap="round"/>
+    <path d="M 200 135 Q 215 145 225 140" stroke="#1E293B" stroke-width="3" fill="none" stroke-linecap="round"/>
+    
+    <!-- Tail -->
+    <path d="M 80 200 Q 50 180 60 150" stroke="#94A3B8" stroke-width="35" fill="none" stroke-linecap="round"/>
+    
+    <!-- Front left leg -->
+    <rect x="160" y="260" width="25" height="80" rx="12" fill="#64748B"/>
+    
+    <!-- Front right leg -->
+    <rect x="215" y="260" width="25" height="80" rx="12" fill="#64748B"/>
+    
+    <!-- Back left leg -->
+    <rect x="120" y="260" width="25" height="70" rx="12" fill="#64748B"/>
+    
+    <!-- Back right leg -->
+    <rect x="255" y="260" width="25" height="70" rx="12" fill="#64748B"/>
+  </g>
+  
+  <!-- "Coming Soon" text -->
+  <text x="400" y="550" font-family="Arial, sans-serif" font-size="36" font-weight="600" fill="#475569" text-anchor="middle">
+    Coming Soon
+  </text>
+  
+  <!-- Paw prints decoration -->
+  <g transform="translate(100, 650)" opacity="0.3">
+    <circle cx="0" cy="0" r="8" fill="#94A3B8"/>
+    <circle cx="15" cy="-5" r="6" fill="#94A3B8"/>
+    <circle cx="15" cy="5" r="6" fill="#94A3B8"/>
+    <circle cx="30" cy="-3" r="6" fill="#94A3B8"/>
+    <circle cx="30" cy="3" r="6" fill="#94A3B8"/>
+  </g>
+  
+  <g transform="translate(650, 650)" opacity="0.3">
+    <circle cx="0" cy="0" r="8" fill="#94A3B8"/>
+    <circle cx="15" cy="-5" r="6" fill="#94A3B8"/>
+    <circle cx="15" cy="5" r="6" fill="#94A3B8"/>
+    <circle cx="30" cy="-3" r="6" fill="#94A3B8"/>
+    <circle cx="30" cy="3" r="6" fill="#94A3B8"/>
+  </g>
+</svg>
