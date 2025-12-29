@@ -5,11 +5,16 @@ import { useDogs } from '@/hooks/useDogs';
 import type { SizeFilter, AgeFilter } from '@/types/dog';
 import { Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
+import { Label } from '@/components/ui/label';
+
+type ViewMode = 'text-only' | 'with-images';
 
 const DogGrid = () => {
   const [sizeFilter, setSizeFilter] = useState<SizeFilter>('All');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
   const [searchQuery, setSearchQuery] = useState('');
+  const [viewMode, setViewMode] = useState<ViewMode>('text-only');
   const { data: dogs = [], isLoading, error } = useDogs();
 
   const filteredDogs = useMemo(() => {
@@ -56,6 +61,22 @@ const DogGrid = () => {
           </div>
 
         <div className="flex-1">
+            <div className="mb-6 p-4 bg-card rounded-lg shadow-soft">
+              <Label className="text-base font-semibold mb-3 block">View Mode</Label>
+              <RadioGroup value={viewMode} onValueChange={(value) => setViewMode(value as ViewMode)}>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="text-only" id="text-only" />
+                  <Label htmlFor="text-only" className="cursor-pointer">Text Only</Label>
+                </div>
+                <div className="flex items-center space-x-2">
+                  <RadioGroupItem value="with-images" id="with-images" disabled />
+                  <Label htmlFor="with-images" className="cursor-not-allowed opacity-50">
+                    With Images <span className="text-xs text-muted-foreground">(Coming Soon)</span>
+                  </Label>
+                </div>
+              </RadioGroup>
+            </div>
+
             <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between mb-8">
               <div className="relative w-full sm:w-80">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
@@ -89,7 +110,7 @@ const DogGrid = () => {
                     className="animate-fade-up"
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
-                    <DogCard dog={dog} />
+                    <DogCard dog={dog} viewMode={viewMode} />
                   </div>
                 ))}
               </div>
