@@ -14,9 +14,12 @@ const Footer = () => {
                 dogadopt<span className="text-primary">.co.uk</span>
               </span>
             </a>
-            <p className="text-background/70 max-w-md">
-              Connecting rescue dogs with loving families across the UK. 
-              Our mission is to promote adoption and help every dog find their forever home.
+            <p className="text-background/70 max-w-md mb-3">
+              100% non-profit platform connecting rescue dogs with loving families across the UK. 
+              Our mission is to promote adoption over purchasing and help every dog find their forever home.
+            </p>
+            <p className="text-background/60 text-sm max-w-md">
+              We exclusively feature ADCH-accredited rescues and hope to build strong partnerships with ADCH and rescue organisations in the future.
             </p>
           </div>
 
@@ -31,19 +34,20 @@ const Footer = () => {
           </div>
 
           <div>
-            <h4 className="font-display font-semibold mb-4">Partner Rescues</h4>
+            <h4 className="font-display font-semibold mb-4">ADCH Partner Rescues</h4>
             <ul className="space-y-2 text-background/70">
               <li>Battersea Dogs Home</li>
               <li>Dogs Trust</li>
               <li>RSPCA</li>
               <li>Blue Cross</li>
             </ul>
+            <p className="text-xs text-background/50 mt-3">Quality ADCH-accredited rescues only</p>
           </div>
         </div>
 
         <div className="border-t border-background/20 pt-8 flex flex-col md:flex-row justify-between items-center gap-4">
-          <p className="text-background/50 text-sm">
-            © {new Date().getFullYear()} dogadopt.co.uk. Made with <Heart className="w-4 h-4 inline text-primary" fill="currentColor" /> for rescue dogs.
+          <p className="text-background/50 text-sm text-center md:text-left">
+            © {new Date().getFullYear()} dogadopt.co.uk - 100% Non-Profit. Made with <Heart className="w-4 h-4 inline text-primary" fill="currentColor" /> for rescue dogs everywhere.
           </p>
           <p className="text-background/50 text-sm">
             <span className="text-primary">#AdoptDontShop</span>
