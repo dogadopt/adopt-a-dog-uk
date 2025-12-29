@@ -1,6 +1,7 @@
 import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Dog } from '@/types/dog';
+import { DEFAULT_DOG_IMAGE } from '@/lib/constants';
 
 interface DogRow {
   id: string;
@@ -65,7 +66,7 @@ export const useDogs = () => {
           location: dog.rescues?.region || 'Unknown', // Use rescue region as location
           rescue: dog.rescues?.name || 'Unknown',
           rescueWebsite: dog.rescues?.website,
-          image: dog.image,
+          image: dog.image || DEFAULT_DOG_IMAGE,
           goodWithKids: dog.good_with_kids,
           goodWithDogs: dog.good_with_dogs,
           goodWithCats: dog.good_with_cats,

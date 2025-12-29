@@ -19,6 +19,7 @@ import { useQueryClient } from '@tanstack/react-query';
 import { BreedCombobox } from '@/components/BreedCombobox';
 import type { Dog } from '@/types/dog';
 import { DevBypassBanner } from '@/components/auth/DevBypassBanner';
+import { DEFAULT_DOG_IMAGE } from '@/lib/constants';
 
 interface DogFormData {
   name: string;
@@ -156,12 +157,9 @@ const Admin = () => {
     }
   };
 
-  const validateDogForm = (data: DogFormData, hasImage: boolean): { isValid: boolean; error?: string } => {
+  const validateDogForm = (data: DogFormData): { isValid: boolean; error?: string } => {
     if (data.breeds.length === 0) {
       return { isValid: false, error: 'Please select at least one breed' };
-    }
-    if (!hasImage) {
-      return { isValid: false, error: 'Please upload an image' };
     }
     return { isValid: true };
   };
@@ -180,8 +178,13 @@ const Admin = () => {
         setIsUploading(false);
       }
 
+      // Use default image if no image is provided
+      if (!imageUrl) {
+        imageUrl = DEFAULT_DOG_IMAGE;
+      }
+
       // Validate form
-      const validation = validateDogForm(formData, !!(imageUrl || imageFile));
+      const validation = validateDogForm(formData);
       if (!validation.isValid) {
         toast({ title: 'Error', description: validation.error, variant: 'destructive' });
         setIsSubmitting(false);
@@ -420,7 +423,10 @@ const Admin = () => {
                 </div>
 
                 <div className="space-y-2">
-                  <Label>Dog Image</Label>
+                  <Label>Dog Image (Optional)</Label>
+                  <p className="text-xs text-muted-foreground">
+                    If no image is uploaded, a default "Coming Soon" image will be used.
+                  </p>
                   <div className="flex flex-col gap-3">
                     {imagePreview && (
                       <div className="relative w-32 h-32">
