@@ -176,6 +176,7 @@ export const DOG_BREEDS = [
   "Otterhound",
   "Papillon",
   "Parson Russell Terrier",
+  "Patterdale Terrier",
   "Pekingese",
   "Pembroke Welsh Corgi",
   "Peruvian Inca Orchid",
@@ -248,6 +249,7 @@ export type DogBreed = typeof DOG_BREEDS[number];
  */
 export const COMMON_CROSS_BREEDS = [
   "Cockapoo",
+  "Crossbreed",
   "Labradoodle",
   "Goldendoodle",
   "Cavapoo",
