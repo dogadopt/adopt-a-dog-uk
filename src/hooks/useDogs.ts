@@ -39,19 +39,8 @@ export const useDogs = () => {
         .from('dogs')
         .select(`
           *,
-          rescues (
-            id,
-            name,
-            region,
-            website
-          ),
-          dogs_breeds (
-            display_order,
-            breeds (
-              id,
-              name
-            )
-          )
+          rescues(id, name, region, website),
+          dogs_breeds(display_order, breed_id, breeds(id, name))
         `)
         .order('created_at', { ascending: false });
 
