@@ -308,20 +308,20 @@ const Admin = () => {
               <Button variant="ghost" size="icon" onClick={() => navigate('/')}>
                 <ArrowLeft className="w-5 h-5" />
               </Button>
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 sm:gap-4">
                 <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
                   <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
                 </div>
-                <span className="font-display text-xl font-semibold text-foreground">
+                <span className="font-display text-lg sm:text-xl font-semibold text-foreground">
                   Admin Panel
                 </span>
               </div>
             </div>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-muted-foreground">{user.email}</span>
+            <div className="flex items-center gap-2 sm:gap-4">
+              <span className="hidden sm:inline text-sm text-muted-foreground">{user.email}</span>
               <Button variant="outline" size="sm" onClick={handleSignOut}>
-                <LogOut className="w-4 h-4 mr-2" />
-                Sign Out
+                <LogOut className="w-4 h-4 sm:mr-2" />
+                <span className="hidden sm:inline">Sign Out</span>
               </Button>
             </div>
           </div>
@@ -329,16 +329,16 @@ const Admin = () => {
       </header>
 
       <main className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-between mb-8">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
           <h1 className="font-display text-3xl font-bold text-foreground">Manage Dogs</h1>
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-              <Button onClick={() => handleOpenDialog()}>
+              <Button onClick={() => handleOpenDialog()} className="w-full sm:w-auto">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Dog
               </Button>
             </DialogTrigger>
-            <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-[calc(100vw-2rem)] sm:max-w-2xl max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>{editingDog ? 'Edit Dog' : 'Add New Dog'}</DialogTitle>
               </DialogHeader>
@@ -365,7 +365,7 @@ const Admin = () => {
                   </p>
                 </div>
 
-                <div className="grid grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="age">Age</Label>
                     <Select value={formData.age} onValueChange={(v) => setFormData({ ...formData, age: v })}>
@@ -401,7 +401,7 @@ const Admin = () => {
                   </div>
                 </div>
 
-                <div className="grid grid-cols-2 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div className="space-y-2">
                     <Label htmlFor="rescue">Rescue Organisation</Label>
                     <RescueCombobox
@@ -477,7 +477,7 @@ const Admin = () => {
                         {imagePreview ? 'Change Image' : 'Upload Image'}
                       </Button>
                       {imageFile && (
-                        <span className="text-sm text-muted-foreground truncate max-w-[200px]">
+                        <span className="text-sm text-muted-foreground truncate max-w-[150px] sm:max-w-[200px]">
                           {imageFile.name}
                         </span>
                       )}
@@ -537,11 +537,11 @@ const Admin = () => {
                   </div>
                 </div>
 
-                <div className="flex justify-end gap-2 pt-4">
-                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)}>
+                <div className="flex flex-col-reverse sm:flex-row justify-end gap-2 pt-4">
+                  <Button type="button" variant="outline" onClick={() => setIsDialogOpen(false)} className="w-full sm:w-auto">
                     Cancel
                   </Button>
-                  <Button type="submit" disabled={isSubmitting}>
+                  <Button type="submit" disabled={isSubmitting} className="w-full sm:w-auto">
                     {isSubmitting && <Loader2 className="w-4 h-4 animate-spin mr-2" />}
                     {editingDog ? 'Save Changes' : 'Add Dog'}
                   </Button>
@@ -561,11 +561,11 @@ const Admin = () => {
           ) : (
             dogs.map((dog) => (
               <Card key={dog.id}>
-                <CardContent className="flex items-center gap-4 py-4">
+                <CardContent className="flex flex-col sm:flex-row items-start sm:items-center gap-4 py-4">
                   <img
                     src={dog.image}
                     alt={dog.name}
-                    className="w-16 h-16 rounded-lg object-cover"
+                    className="w-16 h-16 rounded-lg object-cover flex-shrink-0"
                   />
                   <div className="flex-1 min-w-0">
                     <h3 className="font-display font-semibold text-foreground">{dog.name}</h3>
@@ -574,7 +574,7 @@ const Admin = () => {
                     </p>
                     <p className="text-xs text-muted-foreground">{dog.rescue}</p>
                   </div>
-                  <div className="flex gap-2">
+                  <div className="flex gap-2 w-full sm:w-auto">
                     <Button variant="outline" size="icon" onClick={() => handleOpenDialog(dog)}>
                       <Pencil className="w-4 h-4" />
                     </Button>
