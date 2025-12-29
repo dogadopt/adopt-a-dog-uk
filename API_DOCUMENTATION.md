@@ -109,6 +109,7 @@ Content-Type: application/json
 ```
 
 #### Update Dog (Admin Only)
+Update an existing dog using PostgREST query filter syntax:
 ```http
 PATCH /rest/v1/dogs?id=eq.<dog-id>
 Authorization: Bearer <token>
@@ -119,6 +120,8 @@ Content-Type: application/json
   "status": "adopted"
 }
 ```
+
+**Note:** PostgREST uses query parameters for filtering. The `id=eq.<uuid>` syntax means "where id equals <uuid>".
 
 #### Delete Dog (Admin Only)
 ```http
@@ -278,6 +281,37 @@ interface Session {
 ## Using the Supabase Client
 
 The application uses the Supabase JavaScript client for API interactions:
+
+### PostgREST Query Syntax
+
+Supabase uses PostgREST, which provides powerful query capabilities through URL parameters:
+
+**Filtering:**
+- `column=eq.value` - Equals
+- `column=neq.value` - Not equals
+- `column=gt.value` - Greater than
+- `column=gte.value` - Greater than or equal
+- `column=lt.value` - Less than
+- `column=lte.value` - Less than or equal
+- `column=like.*pattern*` - Pattern matching
+- `column=ilike.*pattern*` - Case-insensitive pattern matching
+- `column=is.null` - Is null
+- `column=in.(value1,value2)` - In list
+
+**Examples:**
+```http
+# Filter by status
+GET /rest/v1/dogs?status=eq.available
+
+# Filter by multiple values
+GET /rest/v1/dogs?size=in.(Small,Medium)
+
+# Pattern matching
+GET /rest/v1/dogs?name=ilike.*buddy*
+
+# Update specific dog
+PATCH /rest/v1/dogs?id=eq.550e8400-e29b-41d4-a716-446655440000
+```
 
 ### Setup
 ```typescript
