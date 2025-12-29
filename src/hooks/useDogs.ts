@@ -11,7 +11,7 @@ interface DogRow {
   gender: string;
   location_id: string | null;
   rescue_id: string | null;
-  image: string;
+  image: string | null;
   description: string;
   good_with_kids: boolean;
   good_with_dogs: boolean;
