@@ -172,7 +172,15 @@ BEGIN
 
     -- Handle DELETE
     IF (TG_OP = 'DELETE') THEN
-      old_snapshot := dogadopt.get_rescue_resolved_snapshot(OLD.id);
+      -- Build snapshot from OLD record since the record is already deleted
+      old_snapshot := jsonb_build_object(
+        'id', OLD.id,
+        'name', OLD.name,
+        'type', OLD.type,
+        'region', OLD.region,
+        'website', OLD.website,
+        'created_at', OLD.created_at
+      );
       
       INSERT INTO dogadopt.rescues_audit_logs (
         rescue_id,
@@ -479,7 +487,27 @@ BEGIN
 
     -- Handle DELETE
     IF (TG_OP = 'DELETE') THEN
-      old_snapshot := dogadopt.get_location_resolved_snapshot(OLD.id);
+      -- Build snapshot from OLD record since the record is already deleted
+      -- Note: Cannot get rescue info via join since location is already deleted
+      old_snapshot := jsonb_build_object(
+        'id', OLD.id,
+        'rescue_id', OLD.rescue_id,
+        'name', OLD.name,
+        'location_type', OLD.location_type,
+        'address_line1', OLD.address_line1,
+        'address_line2', OLD.address_line2,
+        'city', OLD.city,
+        'county', OLD.county,
+        'postcode', OLD.postcode,
+        'region', OLD.region,
+        'latitude', OLD.latitude,
+        'longitude', OLD.longitude,
+        'phone', OLD.phone,
+        'email', OLD.email,
+        'is_public', OLD.is_public,
+        'enquiry_url', OLD.enquiry_url,
+        'created_at', OLD.created_at
+      );
       
       INSERT INTO dogadopt.locations_audit_logs (
         location_id,

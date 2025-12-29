@@ -5,8 +5,15 @@ echo "=== Testing Rescue and Location Audit System ==="
 echo
 
 # Test Rescues Audit
-echo "1. Get a sample rescue name:"
-RESCUE_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.rescues LIMIT 1;" | xargs)
+echo "1. Get a sample rescue name or create one:"
+RESCUE_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.rescues LIMIT 1;" 2>/dev/null | xargs)
+
+if [ -z "$RESCUE_NAME" ]; then
+  echo "No rescues found, creating test rescue..."
+  docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "INSERT INTO dogadopt.rescues (name, type, region, website) VALUES ('Test Initial Rescue', 'Full', 'Test Region', 'www.test.com') RETURNING name;" 2>/dev/null
+  RESCUE_NAME="Test Initial Rescue"
+fi
+
 echo "Testing with rescue: $RESCUE_NAME"
 echo
 
@@ -26,8 +33,17 @@ echo
 echo "=== Testing Location Audit ==="
 echo
 
-echo "6. Get a sample location name:"
-LOCATION_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.locations LIMIT 1;" | xargs)
+echo "6. Get a sample location name or create one:"
+LOCATION_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.locations LIMIT 1;" 2>/dev/null | xargs)
+
+if [ -z "$LOCATION_NAME" ]; then
+  echo "No locations found, creating test location..."
+  # Get the rescue_id from our test rescue
+  RESCUE_ID=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME';" 2>/dev/null | xargs)
+  docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "INSERT INTO dogadopt.locations (rescue_id, name, city, location_type) VALUES ('$RESCUE_ID', 'Test Initial Location', 'Test City', 'centre') RETURNING name;" 2>/dev/null
+  LOCATION_NAME="Test Initial Location"
+fi
+
 echo "Testing with location: $LOCATION_NAME"
 echo
 
