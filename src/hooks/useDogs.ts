@@ -12,6 +12,7 @@ interface DogRow {
   location_id: string | null;
   rescue_id: string | null;
   image: string | null;
+  profile_url: string | null;
   description: string;
   good_with_kids: boolean;
   good_with_dogs: boolean;
@@ -67,6 +68,7 @@ export const useDogs = () => {
           rescue: dog.rescues?.name || 'Unknown',
           rescueWebsite: dog.rescues?.website,
           image: dog.image || DEFAULT_DOG_IMAGE,
+          profileUrl: dog.profile_url || undefined,
           goodWithKids: dog.good_with_kids,
           goodWithDogs: dog.good_with_dogs,
           goodWithCats: dog.good_with_cats,

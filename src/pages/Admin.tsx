@@ -32,6 +32,7 @@ interface DogFormData {
   location: string;
   rescue_id: string;
   image: string;
+  profileUrl: string;
   description: string;
   good_with_kids: boolean;
   good_with_dogs: boolean;
@@ -47,6 +48,7 @@ const initialFormData: DogFormData = {
   location: '',
   rescue_id: '',
   image: '',
+  profileUrl: '',
   description: '',
   good_with_kids: false,
   good_with_dogs: false,
@@ -103,6 +105,7 @@ const Admin = () => {
         location: dog.location,
         rescue_id: rescue?.id || '',
         image: dog.image,
+        profileUrl: dog.profileUrl || '',
         description: dog.description,
         good_with_kids: dog.goodWithKids,
         good_with_dogs: dog.goodWithDogs,
@@ -202,6 +205,7 @@ const Admin = () => {
         gender: formData.gender,
         rescue_id: formData.rescue_id || null,
         image: imageUrl,
+        profile_url: formData.profileUrl || null,
         description: formData.description,
         good_with_kids: formData.good_with_kids,
         good_with_dogs: formData.good_with_dogs,
@@ -479,6 +483,20 @@ const Admin = () => {
                       )}
                     </div>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="profileUrl">Dog Profile URL (Optional)</Label>
+                  <Input
+                    id="profileUrl"
+                    type="url"
+                    value={formData.profileUrl}
+                    onChange={(e) => setFormData({ ...formData, profileUrl: e.target.value })}
+                    placeholder="https://rescue-website.com/dogs/dog-name"
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Link to the dog's profile page on the rescue's website
+                  </p>
                 </div>
 
                 <div className="space-y-2">

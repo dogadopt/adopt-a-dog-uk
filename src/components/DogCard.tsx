@@ -11,6 +11,24 @@ interface DogCardProps {
 const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
   const showImage = viewMode === 'with-images';
 
+  // Add UTM parameters to dog profile URL
+  const getDogProfileUrl = () => {
+    if (!dog.profileUrl) return null;
+    
+    try {
+      const url = new URL(dog.profileUrl);
+      url.searchParams.set('utm_source', 'dogadopt');
+      url.searchParams.set('utm_medium', 'referral');
+      url.searchParams.set('utm_campaign', 'dog_profile');
+      return url.toString();
+    } catch (e) {
+      // If URL is invalid, return the original URL
+      return dog.profileUrl;
+    }
+  };
+
+  const profileUrl = getDogProfileUrl();
+
   return (
     <article className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 hover:-translate-y-1">
       {showImage && (
@@ -68,8 +86,23 @@ const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
           )}
         </div>
 
-        <Button variant="default" className="w-full">
-          View Profile
+        <Button 
+          variant="default" 
+          className="w-full"
+          asChild={!!profileUrl}
+          disabled={!profileUrl}
+        >
+          {profileUrl ? (
+            <a 
+              href={profileUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              View Profile
+            </a>
+          ) : (
+            <span>View Profile</span>
+          )}
         </Button>
       </div>
     </article>
