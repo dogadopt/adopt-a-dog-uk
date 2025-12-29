@@ -13,12 +13,15 @@ escape_sql() {
 
 # Test Rescues Audit
 echo "1. Get a sample rescue name or create one:"
-RESCUE_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.rescues LIMIT 1;" 2>/dev/null | xargs || echo "")
-
-if [ -z "$RESCUE_NAME" ]; then
-  echo "No rescues found, creating test rescue..."
-  docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "INSERT INTO dogadopt.rescues (name, type, region, website) VALUES ('Test Initial Rescue', 'Full', 'Test Region', 'www.test.com') RETURNING name;" 2>/dev/null
-  RESCUE_NAME="Test Initial Rescue"
+if RESCUE_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.rescues LIMIT 1;" 2>/dev/null | xargs); then
+  if [ -z "$RESCUE_NAME" ]; then
+    echo "No rescues found, creating test rescue..."
+    docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "INSERT INTO dogadopt.rescues (name, type, region, website) VALUES ('Test Initial Rescue', 'Full', 'Test Region', 'www.test.com') RETURNING name;" 2>/dev/null
+    RESCUE_NAME="Test Initial Rescue"
+  fi
+else
+  echo "Error: Could not connect to database"
+  exit 1
 fi
 
 # Escape the rescue name for SQL
@@ -43,14 +46,25 @@ echo "=== Testing Location Audit ==="
 echo
 
 echo "6. Get a sample location name or create one:"
-LOCATION_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.locations LIMIT 1;" 2>/dev/null | xargs || echo "")
-
-if [ -z "$LOCATION_NAME" ]; then
-  echo "No locations found, creating test location..."
-  # Get the rescue_id from our test rescue
-  RESCUE_ID=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME_ESCAPED';" 2>/dev/null | xargs)
-  docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "INSERT INTO dogadopt.locations (rescue_id, name, city, location_type) VALUES ('$RESCUE_ID', 'Test Initial Location', 'Test City', 'centre') RETURNING name;" 2>/dev/null
-  LOCATION_NAME="Test Initial Location"
+if LOCATION_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.locations LIMIT 1;" 2>/dev/null | xargs); then
+  if [ -z "$LOCATION_NAME" ]; then
+    echo "No locations found, creating test location..."
+    # Get the rescue_id from our test rescue
+    if RESCUE_ID=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME_ESCAPED';" 2>/dev/null | xargs); then
+      if [ -z "$RESCUE_ID" ]; then
+        echo "Error: Could not find rescue_id for '$RESCUE_NAME'"
+        exit 1
+      fi
+      docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "INSERT INTO dogadopt.locations (rescue_id, name, city, location_type) VALUES ('$RESCUE_ID', 'Test Initial Location', 'Test City', 'centre') RETURNING name;" 2>/dev/null
+      LOCATION_NAME="Test Initial Location"
+    else
+      echo "Error: Could not query rescue_id"
+      exit 1
+    fi
+  fi
+else
+  echo "Error: Could not connect to database"
+  exit 1
 fi
 
 # Escape the location name for SQL

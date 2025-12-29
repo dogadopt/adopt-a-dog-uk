@@ -370,6 +370,7 @@ DECLARE
   changed_fields_array TEXT[];
   old_location_record JSONB;
   new_location_record JSONB;
+  v_rescue_info JSONB;
 BEGIN
   BEGIN  -- Add exception handling to prevent blocking operations
     -- Handle INSERT
@@ -511,22 +512,18 @@ BEGIN
       
       -- Try to enrich with rescue information if rescue still exists
       IF OLD.rescue_id IS NOT NULL THEN
-        DECLARE
-          v_rescue_info JSONB;
-        BEGIN
-          SELECT jsonb_build_object(
-            'rescue_name', r.name,
-            'rescue_type', r.type,
-            'rescue_region', r.region,
-            'rescue_website', r.website
-          ) INTO v_rescue_info
-          FROM dogadopt.rescues r
-          WHERE r.id = OLD.rescue_id;
-          
-          IF v_rescue_info IS NOT NULL THEN
-            old_snapshot := old_snapshot || v_rescue_info;
-          END IF;
-        END;
+        SELECT jsonb_build_object(
+          'rescue_name', r.name,
+          'rescue_type', r.type,
+          'rescue_region', r.region,
+          'rescue_website', r.website
+        ) INTO v_rescue_info
+        FROM dogadopt.rescues r
+        WHERE r.id = OLD.rescue_id;
+        
+        IF v_rescue_info IS NOT NULL THEN
+          old_snapshot := old_snapshot || v_rescue_info;
+        END IF;
       END IF;
       
       INSERT INTO dogadopt.locations_audit_logs (
