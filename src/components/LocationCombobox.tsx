@@ -28,7 +28,12 @@ export function LocationCombobox({
   placeholder = "Enter location...",
 }: LocationComboboxProps) {
   const [open, setOpen] = React.useState(false);
-  const [search, setSearch] = React.useState("");
+  const [search, setSearch] = React.useState(value);
+
+  // Sync search state with value prop when it changes externally
+  React.useEffect(() => {
+    setSearch(value);
+  }, [value]);
 
   // Common UK locations/regions for suggestions
   const commonLocations = React.useMemo(() => [
