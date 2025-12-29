@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 
 // DEV ONLY: Set to true to bypass auth and simulate admin access
 // Disabled by default - use proper Supabase auth instead
-const DEV_BYPASS_AUTH = false;
+const DEV_BYPASS_AUTH = true;
 
 interface AuthContextType {
   user: User | null;
