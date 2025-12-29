@@ -2,43 +2,47 @@
 
 ## ✅ Implementation Complete
 
-This PR successfully implements a complete CI/CD pipeline for the Adopt-a-Dog UK project with GitHub Actions, GitHub Pages deployment, and Supabase migration automation.
+This PR successfully implements a complete CI/CD pipeline for the Adopt-a-Dog UK project with GitHub Actions, GitHub Pages deployment, and Supabase migration automation—all in a single unified workflow.
 
 ---
 
 ## 📋 What Was Implemented
 
-### 1. GitHub Actions Workflows
+### 1. Unified GitHub Actions Workflow
 
-#### **CI Workflow** (`.github/workflows/ci.yml`)
-- **Triggers**: Pull requests and pushes to `main` branch
+#### **Deploy Workflow** (`.github/workflows/deploy.yml`)
+A single, unified workflow that handles the complete CI/CD pipeline with three sequential jobs:
+
+**Job 1: CI - Lint, Type Check, and Build**
+- **Triggers**: Pushes to `main` branch, manual workflow dispatch
 - **Actions**:
   - Installs dependencies with npm ci
   - Runs ESLint linter (continues on error for pre-existing issues)
   - Runs TypeScript type checking
-  - Builds the application
-  - Uploads build artifacts for 7 days
-- **Security**: Explicit `contents: read` permission
+  - Builds the application with production environment variables
+  - Uploads build artifacts
+- **Dependencies**: None (runs first)
 - **Status**: ✅ Configured and tested locally
 
-#### **Deploy Workflow** (`.github/workflows/deploy.yml`)
-- **Triggers**: Pushes to `main` branch, manual workflow dispatch
-- **Actions**:
-  - Builds application with production environment variables
-  - Configures GitHub Pages
-  - Deploys static site to GitHub Pages
-- **Security**: Explicit permissions (contents: read, pages: write, id-token: write)
-- **Environment Variables**: Uses repository secrets for Supabase configuration
-- **Status**: ✅ Ready for deployment (requires secrets configuration)
-
-#### **Supabase Migrations** (`.github/workflows/supabase-migrations.yml`)
-- **Triggers**: Changes to `supabase/migrations/**`, manual workflow dispatch
+**Job 2: Apply Supabase Migrations**
 - **Actions**:
   - Sets up Supabase CLI
   - Links to production Supabase project
   - Applies pending migrations with `supabase db push`
-- **Security**: Explicit `contents: read` permission
+- **Dependencies**: Runs only after CI job succeeds
 - **Status**: ✅ Ready for use (requires secrets configuration)
+
+**Job 3: Deploy to GitHub Pages**
+- **Actions**:
+  - Downloads build artifacts from CI job
+  - Configures GitHub Pages
+  - Deploys static site to GitHub Pages
+- **Dependencies**: Runs only after migrations job succeeds
+- **Status**: ✅ Ready for deployment (requires secrets configuration)
+
+**Security**: Explicit permissions (contents: read, pages: write, id-token: write)
+
+**Execution Flow**: CI → Migrations → Deployment (each step must succeed before the next begins)
 
 ### 2. Build Configuration
 
@@ -125,9 +129,7 @@ This PR successfully implements a complete CI/CD pipeline for the Adopt-a-Dog UK
 ```
 .github/
   workflows/
-    ci.yml                      # CI workflow
-    deploy.yml                  # Deployment workflow
-    supabase-migrations.yml     # Migration workflow
+    deploy.yml                  # Unified CI/CD workflow (CI → Migrations → Deploy)
 docs/
   CI_CD_SETUP.md               # Detailed setup documentation
   POST_MERGE_SETUP.md          # Post-merge checklist
@@ -171,15 +173,17 @@ node_modules/                  # Dependencies (in .gitignore)
 ## 🔄 Workflow Status
 
 ### Current Status
-- **CI Workflow**: ⏳ Waiting for approval (first run from PR)
-- **Deploy Workflow**: 🔜 Ready (will run on merge to main)
-- **Supabase Migrations**: 🔜 Ready (will run when migrations change)
+- **Unified Deploy Workflow**: 🔜 Ready (will run on merge to main)
+  - Job 1: CI (lint, typecheck, build)
+  - Job 2: Migrations (apply database changes)
+  - Job 3: Deploy (publish to GitHub Pages)
 
 ### Expected on Merge
-1. CI workflow will run automatically
-2. Deploy workflow will build and deploy to GitHub Pages
-3. Site will be available at GitHub Pages URL
-4. Future migrations will trigger automatically
+1. Deploy workflow will run automatically with all three jobs in sequence
+2. CI must pass before migrations run
+3. Migrations must succeed before deployment occurs
+4. Site will be available at GitHub Pages URL
+5. Future pushes to main will trigger the full pipeline
 
 ---
 
@@ -194,8 +198,17 @@ node_modules/                  # Dependencies (in .gitignore)
 - Production builds use `/adopt-a-dog-uk/` for GitHub Pages
 - If using a custom domain (dogadopt.co.uk), change base to `/` in `vite.config.ts`
 
-### Migration Workflow
-- Only runs when files in `supabase/migrations/**` change
+### Unified Workflow Design
+- All CI/CD steps are now in a single workflow file (`deploy.yml`)
+- Jobs execute sequentially with dependencies: CI → Migrations → Deploy
+- Each job must succeed before the next begins, ensuring:
+  - Code quality is validated before migrations
+  - Migrations complete before deployment
+  - Failed steps prevent subsequent steps from running
+
+### Migration Execution
+- Migrations run automatically on every deployment to main
+- Ensures database is always up-to-date before new code is deployed
 - Can be manually triggered via GitHub Actions UI
 - Requires valid Supabase access token with migration permissions
 
@@ -213,11 +226,13 @@ node_modules/                  # Dependencies (in .gitignore)
 ## ✨ Summary
 
 This PR provides a complete, production-ready CI/CD pipeline that:
-- ✅ Automatically validates code quality on every PR
+- ✅ Automatically validates code quality before deployment
+- ✅ Applies database migrations before deploying code
 - ✅ Deploys to GitHub Pages on every merge to main
-- ✅ Manages database migrations automatically
+- ✅ Executes in sequence: CI → Migrations → Deployment
 - ✅ Follows security best practices
 - ✅ Includes comprehensive documentation
 - ✅ Zero breaking changes to development workflow
+- ✅ Single unified workflow for easy management
 
 **Next Step**: Merge this PR and follow the post-merge setup checklist in `docs/POST_MERGE_SETUP.md`
