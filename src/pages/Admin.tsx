@@ -16,11 +16,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Heart, Loader2, Plus, Pencil, Trash2, LogOut, ArrowLeft, Upload, X } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
+import { BreedCombobox } from '@/components/BreedCombobox';
 import type { Dog } from '@/types/dog';
+import { DevBypassBanner } from '@/components/auth/DevBypassBanner';
 
 interface DogFormData {
   name: string;
-  breed: string;
+  breeds: string[];
   age: string;
   size: string;
   gender: string;
@@ -35,7 +37,7 @@ interface DogFormData {
 
 const initialFormData: DogFormData = {
   name: '',
-  breed: '',
+  breeds: [],
   age: 'Adult',
   size: 'Medium',
   gender: 'Male',
@@ -49,7 +51,7 @@ const initialFormData: DogFormData = {
 };
 
 const Admin = () => {
-  const { user, isAdmin, isLoading: authLoading, signOut } = useAuth();
+  const { user, isAdmin, isLoading: authLoading, signOut, isDevBypass } = useAuth();
   const { data: dogs = [], isLoading: dogsLoading, refetch } = useDogs();
   const { data: rescues = [] } = useRescues();
   const navigate = useNavigate();
@@ -87,9 +89,11 @@ const Admin = () => {
       setEditingDog(dog);
       // Find rescue_id from rescue name
       const rescue = rescues.find(r => r.name === dog.rescue);
+      // Parse breeds from the breed string (could be comma-separated)
+      const breeds = dog.breeds || (dog.breed ? dog.breed.split(',').map(b => b.trim()) : []);
       setFormData({
         name: dog.name,
-        breed: dog.breed,
+        breeds: breeds,
         age: dog.age,
         size: dog.size,
         gender: dog.gender,
@@ -152,6 +156,16 @@ const Admin = () => {
     }
   };
 
+  const validateDogForm = (data: DogFormData, hasImage: boolean): { isValid: boolean; error?: string } => {
+    if (data.breeds.length === 0) {
+      return { isValid: false, error: 'Please select at least one breed' };
+    }
+    if (!hasImage) {
+      return { isValid: false, error: 'Please upload an image' };
+    }
+    return { isValid: true };
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
@@ -166,16 +180,18 @@ const Admin = () => {
         setIsUploading(false);
       }
 
-      if (!imageUrl && !imageFile) {
-        toast({ title: 'Error', description: 'Please upload an image', variant: 'destructive' });
+      // Validate form
+      const validation = validateDogForm(formData, !!(imageUrl || imageFile));
+      if (!validation.isValid) {
+        toast({ title: 'Error', description: validation.error, variant: 'destructive' });
         setIsSubmitting(false);
         return;
       }
 
       const rescue = rescues.find(r => r.id === formData.rescue_id);
+      
       const dogData = {
         name: formData.name,
-        breed: formData.breed,
         age: formData.age,
         size: formData.size,
         gender: formData.gender,
@@ -189,6 +205,8 @@ const Admin = () => {
         good_with_cats: formData.good_with_cats,
       };
 
+      let dogId: string;
+
       if (editingDog) {
         const { error } = await (supabase as any)
           .from('dogs')
@@ -196,15 +214,33 @@ const Admin = () => {
           .eq('id', editingDog.id);
 
         if (error) throw error;
-        toast({ title: 'Success', description: 'Dog updated successfully' });
+        dogId = editingDog.id;
       } else {
-        const { error } = await (supabase as any)
+        const { data: newDog, error } = await (supabase as any)
           .from('dogs')
-          .insert([dogData]);
+          .insert([dogData])
+          .select()
+          .single();
 
         if (error) throw error;
-        toast({ title: 'Success', description: 'Dog added successfully' });
+        dogId = newDog.id;
       }
+
+      // Update breeds using the helper function
+      const { error: breedsError } = await (supabase as any).rpc(
+        'set_dog_breeds',
+        {
+          p_dog_id: dogId,
+          p_breed_names: formData.breeds
+        }
+      );
+
+      if (breedsError) throw breedsError;
+
+      toast({ 
+        title: 'Success', 
+        description: editingDog ? 'Dog updated successfully' : 'Dog added successfully' 
+      });
 
       setIsDialogOpen(false);
       queryClient.invalidateQueries({ queryKey: ['dogs'] });
@@ -257,6 +293,7 @@ const Admin = () => {
 
   return (
     <div className="min-h-screen bg-background">
+      {isDevBypass && <DevBypassBanner />}
       <header className="sticky top-0 z-50 bg-card/80 backdrop-blur-md border-b border-border">
         <div className="container mx-auto px-4">
           <div className="flex items-center justify-between h-16">
@@ -299,25 +336,26 @@ const Admin = () => {
                 <DialogTitle>{editingDog ? 'Edit Dog' : 'Add New Dog'}</DialogTitle>
               </DialogHeader>
               <form onSubmit={handleSubmit} className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="name">Name</Label>
-                    <Input
-                      id="name"
-                      value={formData.name}
-                      onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                      required
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="breed">Breed</Label>
-                    <Input
-                      id="breed"
-                      value={formData.breed}
-                      onChange={(e) => setFormData({ ...formData, breed: e.target.value })}
-                      required
-                    />
-                  </div>
+                <div className="space-y-2">
+                  <Label htmlFor="name">Name</Label>
+                  <Input
+                    id="name"
+                    value={formData.name}
+                    onChange={(e) => setFormData({ ...formData, name: e.target.value })}
+                    required
+                  />
+                </div>
+
+                <div className="space-y-2">
+                  <Label>Breed(s)</Label>
+                  <BreedCombobox
+                    value={formData.breeds}
+                    onChange={(breeds) => setFormData({ ...formData, breeds })}
+                    placeholder="Select one or more breeds..."
+                  />
+                  <p className="text-xs text-muted-foreground">
+                    Select multiple breeds for cross-breeds or mixes
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-3 gap-4">

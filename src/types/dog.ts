@@ -1,7 +1,8 @@
 export interface Dog {
   id: string;
   name: string;
-  breed: string;
+  breed: string; // Computed display string from breeds array
+  breeds: string[]; // Multiple breeds array (source of truth)
   age: string;
   size: 'Small' | 'Medium' | 'Large';
   gender: 'Male' | 'Female';

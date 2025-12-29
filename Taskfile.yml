@@ -231,9 +231,7 @@ tasks:
     desc: Upload dog data only if database is empty
     deps: [install]
     cmds:
-      - |
-        echo "🐕 Checking for existing dogs and uploading if needed..."
-        npm run upload-dogs || echo "⚠️  Dog data upload failed, continuing..."
+      - echo "🐕 Skipping dog upload - using seed data from migrations"
 
   setup-dogs:
     desc: Interactive demo of dog data upload system

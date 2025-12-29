@@ -7,8 +7,12 @@ const SUPABASE_URL = process.env.VITE_SUPABASE_URL || 'http://localhost:54321';
 const SUPABASE_ANON_KEY = process.env.VITE_SUPABASE_ANON_KEY || 
   'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZS1kZW1vIiwicm9sZSI6ImFub24iLCJleHAiOjE5ODM4MTI5OTZ9.CRXP1A7WOeoJeXxjNni43kdQwgnWNReilDMblYTn_I0';
 
-// Create Supabase client
-const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// Create Supabase client with dogadopt schema
+const supabase = createClient(SUPABASE_URL, SUPABASE_ANON_KEY, {
+  db: {
+    schema: 'dogadopt'
+  }
+});
 
 // Sample dog data
 const sampleDogs = [
@@ -141,19 +145,24 @@ async function uploadData() {
     const isLocal = SUPABASE_URL.includes('localhost');
     console.log(`📡 Connecting to ${isLocal ? 'local' : 'remote'} Supabase...`);
 
-    // Upload rescue organizations to dogadopt schema using REST API
-    console.log('🏢 Uploading rescue organizations...');
+    // Get existing rescues instead of creating new ones
+    console.log('🏢 Getting existing rescue organizations...');
     const { data: rescues, error: rescueError } = await supabase
-      .from('dogadopt.rescues')
-      .upsert(sampleRescues, { onConflict: 'name' })
-      .select();
+      .from('rescues')
+      .select('*')
+      .limit(10);
 
     if (rescueError) {
-      console.error('❌ Error uploading rescues:', rescueError);
+      console.error('❌ Error fetching rescues:', rescueError);
       return;
     }
 
-    console.log(`✅ Uploaded ${rescues.length} rescue organizations`);
+    if (!rescues || rescues.length === 0) {
+      console.error('❌ No rescues found. Please run migrations first.');
+      return;
+    }
+
+    console.log(`✅ Found ${rescues.length} rescue organizations`);
 
     // Assign rescue IDs to dogs
     const dogsWithRescues = sampleDogs.map((dog, index) => {
@@ -167,7 +176,7 @@ async function uploadData() {
     // Upload dogs to dogadopt schema
     console.log('🐕 Uploading dogs...');
     const { data: dogs, error: dogError } = await supabase
-      .from('dogadopt.dogs')
+      .from('dogs')
       .upsert(dogsWithRescues, { onConflict: 'id' })
       .select();
 
@@ -180,7 +189,7 @@ async function uploadData() {
 
     // Verify the data
     const { data: allDogs, error: verifyError } = await supabase
-      .from('dogadopt.dogs')
+      .from('dogs')
       .select('*')
       .limit(10);
 
