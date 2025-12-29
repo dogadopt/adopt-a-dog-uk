@@ -422,7 +422,7 @@ const Admin = () => {
                     <Label htmlFor="location">Location</Label>
                     <LocationCombobox
                       value={formData.location}
-                      onChange={(location) => setFormData({ ...formData, location })}
+                      onChange={(location) => setFormData(prev => ({ ...prev, location }))}
                       placeholder="Select or enter location..."
                     />
                   </div>
