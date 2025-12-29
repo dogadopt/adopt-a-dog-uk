@@ -18,6 +18,7 @@ import { useToast } from '@/hooks/use-toast';
 import { useQueryClient } from '@tanstack/react-query';
 import { BreedCombobox } from '@/components/BreedCombobox';
 import { RescueCombobox } from '@/components/RescueCombobox';
+import { LocationCombobox } from '@/components/LocationCombobox';
 import type { Dog } from '@/types/dog';
 import { DevBypassBanner } from '@/components/auth/DevBypassBanner';
 import { DEFAULT_DOG_IMAGE } from '@/lib/constants';
@@ -28,6 +29,7 @@ interface DogFormData {
   age: string;
   size: string;
   gender: string;
+  location: string;
   rescue_id: string;
   image: string;
   description: string;
@@ -42,6 +44,7 @@ const initialFormData: DogFormData = {
   age: 'Adult',
   size: 'Medium',
   gender: 'Male',
+  location: '',
   rescue_id: '',
   image: '',
   description: '',
@@ -97,6 +100,7 @@ const Admin = () => {
         age: dog.age,
         size: dog.size,
         gender: dog.gender,
+        location: dog.location,
         rescue_id: rescue?.id || '',
         image: dog.image,
         description: dog.description,
@@ -393,17 +397,27 @@ const Admin = () => {
                   </div>
                 </div>
 
-                <div className="space-y-2">
-                  <Label htmlFor="rescue">Rescue Organisation</Label>
-                  <RescueCombobox
-                    value={formData.rescue_id}
-                    onChange={(rescue_id) => setFormData({ ...formData, rescue_id })}
-                    rescues={rescues}
-                    placeholder="Select rescue organisation..."
-                  />
-                  <p className="text-xs text-muted-foreground">
-                    Location will be displayed based on the rescue's region
-                  </p>
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="location">Location</Label>
+                    <LocationCombobox
+                      value={formData.location}
+                      onChange={(location) => setFormData({ ...formData, location })}
+                      placeholder="Select or enter location..."
+                    />
+                    <p className="text-xs text-muted-foreground">
+                      Location is stored for reference and auto-populated from rescue's region
+                    </p>
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="rescue">Rescue Organisation</Label>
+                    <RescueCombobox
+                      value={formData.rescue_id}
+                      onChange={(rescue_id) => setFormData({ ...formData, rescue_id })}
+                      rescues={rescues}
+                      placeholder="Select rescue organisation..."
+                    />
+                  </div>
                 </div>
 
                 <div className="space-y-2">
