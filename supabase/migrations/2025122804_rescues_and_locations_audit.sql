@@ -488,7 +488,7 @@ BEGIN
     -- Handle DELETE
     IF (TG_OP = 'DELETE') THEN
       -- Build snapshot from OLD record since the record is already deleted
-      -- Note: Cannot get rescue info via join since location is already deleted
+      -- Get rescue info via the rescue_id (rescue still exists even though location is deleted)
       old_snapshot := jsonb_build_object(
         'id', OLD.id,
         'rescue_id', OLD.rescue_id,
@@ -508,6 +508,26 @@ BEGIN
         'enquiry_url', OLD.enquiry_url,
         'created_at', OLD.created_at
       );
+      
+      -- Try to enrich with rescue information if rescue still exists
+      IF OLD.rescue_id IS NOT NULL THEN
+        DECLARE
+          v_rescue_info JSONB;
+        BEGIN
+          SELECT jsonb_build_object(
+            'rescue_name', r.name,
+            'rescue_type', r.type,
+            'rescue_region', r.region,
+            'rescue_website', r.website
+          ) INTO v_rescue_info
+          FROM dogadopt.rescues r
+          WHERE r.id = OLD.rescue_id;
+          
+          IF v_rescue_info IS NOT NULL THEN
+            old_snapshot := old_snapshot || v_rescue_info;
+          END IF;
+        END;
+      END IF;
       
       INSERT INTO dogadopt.locations_audit_logs (
         location_id,

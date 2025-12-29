@@ -1,12 +1,19 @@
 #!/bin/bash
 # Test audit logging for rescues and locations
+set -e  # Exit on error
+set -o pipefail  # Exit on pipe failures
 
 echo "=== Testing Rescue and Location Audit System ==="
 echo
 
+# Function to escape single quotes for SQL
+escape_sql() {
+  echo "$1" | sed "s/'/''/g"
+}
+
 # Test Rescues Audit
 echo "1. Get a sample rescue name or create one:"
-RESCUE_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.rescues LIMIT 1;" 2>/dev/null | xargs)
+RESCUE_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.rescues LIMIT 1;" 2>/dev/null | xargs || echo "")
 
 if [ -z "$RESCUE_NAME" ]; then
   echo "No rescues found, creating test rescue..."
@@ -14,50 +21,54 @@ if [ -z "$RESCUE_NAME" ]; then
   RESCUE_NAME="Test Initial Rescue"
 fi
 
+# Escape the rescue name for SQL
+RESCUE_NAME_ESCAPED=$(escape_sql "$RESCUE_NAME")
 echo "Testing with rescue: $RESCUE_NAME"
 echo
 
 echo "2. Current audit log count for $RESCUE_NAME:"
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.rescues_audit_logs WHERE rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME');"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.rescues_audit_logs WHERE rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME_ESCAPED');"
 
 echo "3. Updating $RESCUE_NAME website..."
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "UPDATE dogadopt.rescues SET website = 'www.updated-rescue-website.com' WHERE name = '$RESCUE_NAME';"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "UPDATE dogadopt.rescues SET website = 'www.updated-rescue-website.com' WHERE name = '$RESCUE_NAME_ESCAPED';"
 
 echo "4. Audit log count after update:"
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.rescues_audit_logs WHERE rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME');"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.rescues_audit_logs WHERE rescue_id = (SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME_ESCAPED');"
 
 echo "5. View audit log for $RESCUE_NAME:"
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "SELECT rescue_name, operation, old_website, new_website, change_summary FROM dogadopt.rescues_audit_logs_resolved WHERE rescue_name = '$RESCUE_NAME' ORDER BY changed_at DESC LIMIT 5;"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "SELECT rescue_name, operation, old_website, new_website, change_summary FROM dogadopt.rescues_audit_logs_resolved WHERE rescue_name = '$RESCUE_NAME_ESCAPED' ORDER BY changed_at DESC LIMIT 5;"
 
 echo
 echo "=== Testing Location Audit ==="
 echo
 
 echo "6. Get a sample location name or create one:"
-LOCATION_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.locations LIMIT 1;" 2>/dev/null | xargs)
+LOCATION_NAME=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT name FROM dogadopt.locations LIMIT 1;" 2>/dev/null | xargs || echo "")
 
 if [ -z "$LOCATION_NAME" ]; then
   echo "No locations found, creating test location..."
   # Get the rescue_id from our test rescue
-  RESCUE_ID=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME';" 2>/dev/null | xargs)
+  RESCUE_ID=$(docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT id FROM dogadopt.rescues WHERE name = '$RESCUE_NAME_ESCAPED';" 2>/dev/null | xargs)
   docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "INSERT INTO dogadopt.locations (rescue_id, name, city, location_type) VALUES ('$RESCUE_ID', 'Test Initial Location', 'Test City', 'centre') RETURNING name;" 2>/dev/null
   LOCATION_NAME="Test Initial Location"
 fi
 
+# Escape the location name for SQL
+LOCATION_NAME_ESCAPED=$(escape_sql "$LOCATION_NAME")
 echo "Testing with location: $LOCATION_NAME"
 echo
 
 echo "7. Current audit log count for $LOCATION_NAME:"
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.locations_audit_logs WHERE location_id = (SELECT id FROM dogadopt.locations WHERE name = '$LOCATION_NAME');"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.locations_audit_logs WHERE location_id = (SELECT id FROM dogadopt.locations WHERE name = '$LOCATION_NAME_ESCAPED');"
 
 echo "8. Updating $LOCATION_NAME city..."
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "UPDATE dogadopt.locations SET city = 'Updated City' WHERE name = '$LOCATION_NAME';"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "UPDATE dogadopt.locations SET city = 'Updated City' WHERE name = '$LOCATION_NAME_ESCAPED';"
 
 echo "9. Audit log count after update:"
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.locations_audit_logs WHERE location_id = (SELECT id FROM dogadopt.locations WHERE name = '$LOCATION_NAME');"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -t -c "SELECT COUNT(*) FROM dogadopt.locations_audit_logs WHERE location_id = (SELECT id FROM dogadopt.locations WHERE name = '$LOCATION_NAME_ESCAPED');"
 
 echo "10. View audit log for $LOCATION_NAME:"
-docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "SELECT location_name, operation, old_city, new_city, change_summary FROM dogadopt.locations_audit_logs_resolved WHERE location_name = '$LOCATION_NAME' ORDER BY changed_at DESC LIMIT 5;"
+docker exec supabase_db_dog-adopt psql -U postgres -d postgres -c "SELECT location_name, operation, old_city, new_city, change_summary FROM dogadopt.locations_audit_logs_resolved WHERE location_name = '$LOCATION_NAME_ESCAPED' ORDER BY changed_at DESC LIMIT 5;"
 
 echo
 echo "11. Create a new rescue to test INSERT audit:"
