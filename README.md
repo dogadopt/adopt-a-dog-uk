@@ -102,7 +102,29 @@ For production deployment:
 
 ## How can I deploy this project?
 
-Simply open [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) and click on Share -> Publish.
+### Automated Deployment (Recommended)
+
+This project uses GitHub Actions for automated CI/CD:
+
+1. **GitHub Pages Deployment**: Automatically deploys to GitHub Pages when code is pushed to the `main` branch
+2. **Supabase Migrations**: Automatically applies database migrations when migration files are updated
+
+**Setup Instructions:**
+See [CI/CD Setup Documentation](docs/CI_CD_SETUP.md) for detailed configuration steps.
+
+**Quick Setup:**
+1. Enable GitHub Pages in repository settings (set source to "GitHub Actions")
+2. Add required secrets in repository settings:
+   - `VITE_SUPABASE_URL`
+   - `VITE_SUPABASE_PUBLISHABLE_KEY`
+   - `VITE_SUPABASE_PROJECT_ID`
+   - `SUPABASE_ACCESS_TOKEN`
+   - `SUPABASE_PROJECT_REF`
+3. Push to `main` branch to trigger deployment
+
+### Alternative Deployment
+
+You can also deploy via [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) by clicking Share -> Publish.
 
 ## Can I connect a custom domain to my Lovable project?
 
