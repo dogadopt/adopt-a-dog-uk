@@ -200,8 +200,6 @@ const Admin = () => {
         age: formData.age,
         size: formData.size,
         gender: formData.gender,
-        location: formData.location,
-        rescue: rescue?.name || '',
         rescue_id: formData.rescue_id || null,
         image: imageUrl,
         description: formData.description,
