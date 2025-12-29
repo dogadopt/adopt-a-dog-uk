@@ -10,6 +10,7 @@ export interface Dog {
   rescue: string;
   rescueWebsite?: string;
   image: string;
+  profileUrl?: string;
   goodWithKids: boolean;
   goodWithDogs: boolean;
   goodWithCats: boolean;
