@@ -48,7 +48,7 @@ function calculateAgeCategory(
       return 'Puppy';
     } else if (ageInMonths <= 24) {  // 2 years
       return 'Young';
-    } else if (ageInYears <= 8) {
+    } else if (ageInMonths <= 96) {  // 8 years
       return 'Adult';
     } else {
       return 'Senior';

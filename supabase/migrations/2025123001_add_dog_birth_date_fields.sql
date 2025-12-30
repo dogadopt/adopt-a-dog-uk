@@ -10,6 +10,7 @@ ALTER TABLE dogadopt.dogs
 -- Add constraints for valid date ranges
 ALTER TABLE dogadopt.dogs
   ADD CONSTRAINT check_birth_year_range 
+    -- Allow current year + 1 to handle dogs born in December when data is entered in January
     CHECK (birth_year IS NULL OR (birth_year >= 1900 AND birth_year <= EXTRACT(YEAR FROM CURRENT_DATE) + 1)),
   ADD CONSTRAINT check_birth_month_range 
     CHECK (birth_month IS NULL OR (birth_month >= 1 AND birth_month <= 12)),
