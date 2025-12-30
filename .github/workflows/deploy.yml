@@ -73,13 +73,13 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       
-      - name: Run migrations
-        run: supabase db push
+      - name: Run migrations and seed reference data
+        run: supabase db push --include-seed
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       
-      - name: Migration completed
-        run: echo "Migrations applied successfully to production database"
+      - name: Migration and seed completed
+        run: echo "Migrations and reference data applied successfully to production database"
   
   deploy:
     name: Deploy to GitHub Pages

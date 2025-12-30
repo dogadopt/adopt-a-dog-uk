@@ -122,6 +122,28 @@ See [CI/CD Setup Documentation](docs/CI_CD_SETUP.md) for detailed configuration 
    - `SUPABASE_PROJECT_REF`
 3. Push to `main` branch to trigger deployment
 
+## Data Management
+
+### Rescues and Locations
+
+This project maintains a reference list of rescue organizations from the ADCH (Association of Dogs and Cats Homes). The data is managed through the seed file which uses MERGE logic to keep the database synchronized.
+
+**Updating Rescues Data:**
+
+1. Edit the seed file: `supabase/seed.sql` (search for "RESCUES AND LOCATIONS REFERENCE DATA")
+2. Test locally: `npm run supabase:reset` (resets DB and runs seed file)
+3. Deploy: Push to main branch (auto-runs seed via GitHub Actions)
+
+**Key Features:**
+- ✅ MERGE statement handles inserts, updates, AND deletes
+- ✅ Only updates records when data has changed
+- ✅ Maintains full audit trail of all changes
+- ✅ Automatically runs with migrations via `--include-seed` flag
+- ✅ Creates default locations for new rescues
+- ✅ Safe to run multiple times (idempotent)
+
+The seed file uses SQL MERGE to synchronize the database with the reference data, including removing rescues that are no longer in the seed file.
+
 ### Alternative Deployment
 
 You can also deploy via [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) by clicking Share -> Publish.
