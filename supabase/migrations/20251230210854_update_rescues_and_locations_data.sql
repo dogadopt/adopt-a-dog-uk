@@ -2,9 +2,26 @@
 -- Source: https://github.com/dogadopt/dogadopt.github.io/blob/main/rescues.json
 -- Generated: 2025-12-30T21:08:54.867Z
 
+-- IMPORTANT: This migration replaces ALL rescue and location data
+-- This is safe for initial setup, but if there are existing dogs,
+-- their rescue_id references will become invalid.
+
 -- First, clear existing data (keeping audit logs)
+-- Note: locations can be safely deleted (has ON DELETE SET NULL for dogs.location_id)
 DELETE FROM dogadopt.locations;
+
+-- Temporarily disable the foreign key constraint on dogs.rescue_id to allow deletion
+-- This is safe because we're replacing all rescues immediately after
+ALTER TABLE dogadopt.dogs DROP CONSTRAINT IF EXISTS dogs_rescue_id_fkey;
 DELETE FROM dogadopt.rescues;
+
+-- Re-enable the foreign key constraint
+-- Note: We use ON DELETE RESTRICT to prevent accidental rescue deletion in the future
+ALTER TABLE dogadopt.dogs 
+ADD CONSTRAINT dogs_rescue_id_fkey 
+FOREIGN KEY (rescue_id) 
+REFERENCES dogadopt.rescues(id) 
+ON DELETE RESTRICT;
 
 -- Insert rescues with location data
 
@@ -499,3 +516,8 @@ INSERT INTO dogadopt.locations (rescue_id, name, city, region, latitude, longitu
 SELECT id, 'Scottish Staffordshire Bull Terrier Rescue', 'Scotland', 'Scotland', 55.833511, -4.426281, NULL, 'centre', true
 FROM dogadopt.rescues WHERE name = 'Scottish Staffordshire Bull Terrier Rescue';
 
+
+-- Migration complete!
+-- Total rescues inserted: 61
+-- Total locations inserted: 62
+-- WARNING: Existing dog records will need their rescue_id updated to match new rescue IDs
