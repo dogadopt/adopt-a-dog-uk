@@ -166,37 +166,78 @@ const DogGrid = () => {
                           />
                         </PaginationItem>
                         
-                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
-                          // Show first page, last page, current page, and pages around current
-                          const showPage =
-                            page === 1 ||
-                            page === totalPages ||
-                            (page >= currentPage - 1 && page <= currentPage + 1);
-
-                          if (!showPage) {
-                            // Show ellipsis only once between ranges
-                            if (page === currentPage - 2 || page === currentPage + 2) {
-                              return (
-                                <PaginationItem key={page}>
-                                  <PaginationEllipsis />
-                                </PaginationItem>
-                              );
-                            }
-                            return null;
-                          }
-
-                          return (
-                            <PaginationItem key={page}>
-                              <PaginationLink
-                                onClick={() => setCurrentPage(page)}
-                                isActive={currentPage === page}
-                                className="cursor-pointer"
-                              >
-                                {page}
-                              </PaginationLink>
-                            </PaginationItem>
-                          );
-                        })}
+                        {/* First page */}
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(1)}
+                            isActive={currentPage === 1}
+                            className="cursor-pointer"
+                          >
+                            1
+                          </PaginationLink>
+                        </PaginationItem>
+                        
+                        {/* Left ellipsis */}
+                        {currentPage > 3 && (
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        )}
+                        
+                        {/* Pages around current */}
+                        {currentPage > 2 && (
+                          <PaginationItem>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(currentPage - 1)}
+                              className="cursor-pointer"
+                            >
+                              {currentPage - 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )}
+                        
+                        {currentPage !== 1 && currentPage !== totalPages && (
+                          <PaginationItem>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(currentPage)}
+                              isActive={true}
+                              className="cursor-pointer"
+                            >
+                              {currentPage}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )}
+                        
+                        {currentPage < totalPages - 1 && (
+                          <PaginationItem>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(currentPage + 1)}
+                              className="cursor-pointer"
+                            >
+                              {currentPage + 1}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )}
+                        
+                        {/* Right ellipsis */}
+                        {currentPage < totalPages - 2 && (
+                          <PaginationItem>
+                            <PaginationEllipsis />
+                          </PaginationItem>
+                        )}
+                        
+                        {/* Last page */}
+                        {totalPages > 1 && (
+                          <PaginationItem>
+                            <PaginationLink
+                              onClick={() => setCurrentPage(totalPages)}
+                              isActive={currentPage === totalPages}
+                              className="cursor-pointer"
+                            >
+                              {totalPages}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )}
                         
                         <PaginationItem>
                           <PaginationNext
