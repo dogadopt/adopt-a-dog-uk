@@ -78,8 +78,13 @@ jobs:
         env:
           SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
       
-      - name: Migration completed
-        run: echo "Migrations applied successfully to production database"
+      - name: Sync rescues and locations data
+        run: supabase db execute --file supabase/post-deploy/sync-rescues-locations.sql
+        env:
+          SUPABASE_ACCESS_TOKEN: ${{ secrets.SUPABASE_ACCESS_TOKEN }}
+      
+      - name: Migration and sync completed
+        run: echo "Migrations and data sync applied successfully to production database"
   
   deploy:
     name: Deploy to GitHub Pages

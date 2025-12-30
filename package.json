@@ -12,6 +12,8 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "upload-dogs": "node scripts/upload-dogs.js",
+    "sync-rescues": "node scripts/sync-rescues-locations.js",
+    "sync-rescues:prod": "node scripts/sync-rescues-locations.js --production",
     "supabase:start": "supabase start",
     "supabase:stop": "supabase stop",
     "supabase:reset": "supabase db reset"

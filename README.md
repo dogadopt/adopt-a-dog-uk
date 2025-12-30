@@ -122,6 +122,34 @@ See [CI/CD Setup Documentation](docs/CI_CD_SETUP.md) for detailed configuration 
    - `SUPABASE_PROJECT_REF`
 3. Push to `main` branch to trigger deployment
 
+## Data Management
+
+### Rescues and Locations
+
+This project maintains a reference list of rescue organizations from the ADCH (Association of Dogs and Cats Homes). The data is managed through a post-deploy sync system.
+
+**Updating Rescues Data:**
+
+1. Edit the data file: `supabase/data/rescues.csv`
+2. Update the SQL script: `supabase/post-deploy/sync-rescues-locations.sql`
+3. Test locally: `npm run sync-rescues`
+4. Deploy: Push to main branch (auto-syncs via GitHub Actions)
+
+**Manual Sync to Production:**
+```bash
+export SUPABASE_PROJECT_REF=your-project-ref
+export SUPABASE_ACCESS_TOKEN=your-access-token
+npm run sync-rescues:prod
+```
+
+**Key Features:**
+- ✅ Only updates records when data has changed
+- ✅ Maintains full audit trail of all changes
+- ✅ Automatically runs after migrations in CI/CD
+- ✅ Creates default locations for new rescues
+
+For detailed documentation, see [supabase/data/README.md](supabase/data/README.md)
+
 ### Alternative Deployment
 
 You can also deploy via [Lovable](https://lovable.dev/projects/REPLACE_WITH_PROJECT_ID) by clicking Share -> Publish.

@@ -33,7 +33,7 @@ The workflow consists of three sequential jobs:
 
 #### Job 2: Apply Supabase Migrations
 
-**Purpose:** Applies database migrations to production Supabase project
+**Purpose:** Applies database migrations and syncs reference data to production Supabase project
 
 **Dependencies:** Runs only after CI job completes successfully
 
@@ -42,6 +42,7 @@ The workflow consists of three sequential jobs:
 - Setup Supabase CLI
 - Link to production project
 - Apply pending migrations
+- Sync rescues and locations data (post-deploy script)
 
 **Required Secrets:**
 - `SUPABASE_ACCESS_TOKEN` - Supabase access token for CLI authentication
@@ -68,9 +69,11 @@ The workflow consists of three sequential jobs:
 The workflow executes in this order:
 1. **CI Job** runs first (lint, typecheck, build)
 2. **Migrations Job** runs only if CI succeeds
+   - Applies database schema migrations
+   - Syncs rescues and locations reference data
 3. **Deploy Job** runs only if migrations succeed
 
-This ensures code quality is validated before migrations are applied, and migrations are applied before deployment.
+This ensures code quality is validated before migrations are applied, reference data is synced, and migrations are complete before deployment.
 
 ## Setup Instructions
 
