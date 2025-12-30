@@ -52,3 +52,4 @@ https://github.com/dogadopt/dogadopt.github.io/blob/main/rescues.json
 - Only updates coordinates where they don't already exist (won't overwrite)
 - New rescues are added as Full type with proper regions and websites
 - All changes tracked in audit system
+- Source data contains "Airdale Terrier Club of Scotland" (note spelling) - kept as-is from source
