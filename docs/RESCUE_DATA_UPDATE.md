@@ -8,7 +8,7 @@ Data sourced from: https://github.com/dogadopt/dogadopt.github.io/blob/main/resc
 
 ## Changes Made
 
-### Migration: `20251230210854_update_rescues_and_locations_data.sql`
+### Migration: `20251230211953_update_rescues_and_locations_data.sql`
 
 This migration completely replaces the existing rescue and location data with updated information from the source repository.
 
@@ -43,11 +43,13 @@ This migration completely replaces the existing rescue and location data with up
 
 #### Special Cases:
 
-1. **Grovehill Animal Trust**: This rescue appears twice in the source data with identical information. The migration handles this by creating one rescue with one location.
+1. **Grovehill Animal Trust**: This rescue appears twice in the source data with identical information. The migration handles this by creating one rescue with two locations.
 
-2. **Website URLs**: All website URLs are normalized to include the `https://` protocol for consistency.
+2. **Website URLs**: All website URLs are normalized to include the `https://` protocol for consistency, and proper URL path formatting is ensured.
 
 3. **Enquiry URLs**: When available, the `website_dogs` path is appended to the main website to create direct links to dog listings.
+
+4. **Name Spelling**: The rescue name "Airdale Terrier Club of Scotland" appears in the source data with this spelling. This is kept as-is from the source, though the correct spelling of the breed is "Airedale".
 
 ## Testing
 
