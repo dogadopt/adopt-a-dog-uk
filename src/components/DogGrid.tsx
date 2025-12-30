@@ -199,7 +199,6 @@ const DogGrid = () => {
                         {currentPage !== 1 && currentPage !== totalPages && (
                           <PaginationItem>
                             <PaginationLink
-                              onClick={() => setCurrentPage(currentPage)}
                               isActive={true}
                               className="cursor-pointer"
                             >
