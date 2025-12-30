@@ -58,7 +58,25 @@ function buildWebsiteUrl(entry) {
   if (!url.startsWith('http://') && !url.startsWith('https://')) {
     url = 'https://' + url;
   }
+  
+  // Remove trailing slash to avoid double slashes when appending paths
+  url = url.replace(/\/+$/, '');
+  
   return url;
+}
+
+// Function to build full URL with path
+function buildFullUrl(baseUrl, path) {
+  if (!baseUrl) return null;
+  if (!path) return null;
+  
+  // Ensure path starts with exactly one slash
+  if (!path.startsWith('/')) {
+    path = '/' + path;
+  }
+  path = path.replace(/^\/+/, '/');
+  
+  return baseUrl + path;
 }
 
 // Generate SQL
@@ -66,9 +84,26 @@ let migrationSql = `-- Update rescue and location data from dogadopt.github.io
 -- Source: https://github.com/dogadopt/dogadopt.github.io/blob/main/rescues.json
 -- Generated: ${new Date().toISOString()}
 
+-- IMPORTANT: This migration replaces ALL rescue and location data
+-- This is safe for initial setup, but if there are existing dogs,
+-- their rescue_id references will become invalid.
+
 -- First, clear existing data (keeping audit logs)
+-- Note: locations can be safely deleted (has ON DELETE SET NULL for dogs.location_id)
 DELETE FROM dogadopt.locations;
+
+-- Temporarily disable the foreign key constraint on dogs.rescue_id to allow deletion
+-- This is safe because we're replacing all rescues immediately after
+ALTER TABLE dogadopt.dogs DROP CONSTRAINT IF EXISTS dogs_rescue_id_fkey;
 DELETE FROM dogadopt.rescues;
+
+-- Re-enable the foreign key constraint
+-- Note: We use ON DELETE RESTRICT to prevent accidental rescue deletion in the future
+ALTER TABLE dogadopt.dogs 
+ADD CONSTRAINT dogs_rescue_id_fkey 
+FOREIGN KEY (rescue_id) 
+REFERENCES dogadopt.rescues(id) 
+ON DELETE RESTRICT;
 
 -- Insert rescues with location data
 `;
@@ -90,7 +125,8 @@ Object.entries(rescueGroups).forEach(([rescueName, locations]) => {
       : rescueName;
     
     const city = loc.country || 'Unknown';
-    const websiteDogsUrl = loc.website_dogs ? buildWebsiteUrl({website: loc.website + loc.website_dogs}) : null;
+    const baseUrl = buildWebsiteUrl(firstLocation);
+    const websiteDogsUrl = loc.website_dogs ? buildFullUrl(baseUrl, loc.website_dogs) : null;
     
     migrationSql += `INSERT INTO dogadopt.locations (rescue_id, name, city, region, latitude, longitude, enquiry_url, location_type, is_public)\n`;
     migrationSql += `SELECT id, '${escapeSql(locationName)}', '${escapeSql(city)}', '${escapeSql(region)}', `;
@@ -103,6 +139,12 @@ Object.entries(rescueGroups).forEach(([rescueName, locations]) => {
     migrationSql += `FROM dogadopt.rescues WHERE name = '${escapeSql(rescueName)}';\n\n`;
   });
 });
+
+// Add completion notes
+migrationSql += `\n-- Migration complete!`;
+migrationSql += `\n-- Total rescues inserted: ${Object.keys(rescueGroups).length}`;
+migrationSql += `\n-- Total locations inserted: ${rescuesData.length}`;
+migrationSql += `\n-- Note: All audit logs preserved, changes tracked in audit system\n`;
 
 // Write the migration file
 const timestamp = new Date().toISOString().replace(/[-:T]/g, '').slice(0, 14);

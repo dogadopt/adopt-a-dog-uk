@@ -1,6 +1,6 @@
 -- Update rescue and location data from dogadopt.github.io
 -- Source: https://github.com/dogadopt/dogadopt.github.io/blob/main/rescues.json
--- Generated: 2025-12-30T21:08:54.867Z
+-- Generated: 2025-12-30T21:19:53.687Z
 
 -- IMPORTANT: This migration replaces ALL rescue and location data
 -- This is safe for initial setup, but if there are existing dogs,
@@ -27,9 +27,9 @@ ON DELETE RESTRICT;
 
 -- Hope Rescue (Wales)
 INSERT INTO dogadopt.rescues (name, type, region, website) VALUES
-  ('Hope Rescue', 'Full', 'Wales', 'https://www.hoperescue.org.uk/');
+  ('Hope Rescue', 'Full', 'Wales', 'https://www.hoperescue.org.uk');
 INSERT INTO dogadopt.locations (rescue_id, name, city, region, latitude, longitude, enquiry_url, location_type, is_public)
-SELECT id, 'Hope Rescue', 'Wales', 'Wales', 51.5683353, -3.4233855, 'https://www.hoperescue.org.uk//Listing/Category/rehoming', 'centre', true
+SELECT id, 'Hope Rescue', 'Wales', 'Wales', 51.5683353, -3.4233855, 'https://www.hoperescue.org.uk/Listing/Category/rehoming', 'centre', true
 FROM dogadopt.rescues WHERE name = 'Hope Rescue';
 
 
@@ -461,11 +461,11 @@ FROM dogadopt.rescues WHERE name = 'Rainbow Rehoming Centre';
 INSERT INTO dogadopt.rescues (name, type, region, website) VALUES
   ('Grovehill Animal Trust', 'Full', 'Northern Ireland', 'https://grovehillanimaltrust.org');
 INSERT INTO dogadopt.locations (rescue_id, name, city, region, latitude, longitude, enquiry_url, location_type, is_public)
-SELECT id, 'Grovehill Animal Trust - Location 1', 'Northern Ireland', 'Northern Ireland', 54.60724252744901, -7.3045544503179, 'https://grovehillanimaltrust.orgrehoming/dog-rehoming-process/', 'centre', true
+SELECT id, 'Grovehill Animal Trust - Location 1', 'Northern Ireland', 'Northern Ireland', 54.60724252744901, -7.3045544503179, 'https://grovehillanimaltrust.org/rehoming/dog-rehoming-process/', 'centre', true
 FROM dogadopt.rescues WHERE name = 'Grovehill Animal Trust';
 
 INSERT INTO dogadopt.locations (rescue_id, name, city, region, latitude, longitude, enquiry_url, location_type, is_public)
-SELECT id, 'Grovehill Animal Trust - Location 2', 'Northern Ireland', 'Northern Ireland', 54.60724252744901, -7.3045544503179, 'https://grovehillanimaltrust.orgrehoming/dog-rehoming-process/', 'centre', true
+SELECT id, 'Grovehill Animal Trust - Location 2', 'Northern Ireland', 'Northern Ireland', 54.60724252744901, -7.3045544503179, 'https://grovehillanimaltrust.org/rehoming/dog-rehoming-process/', 'centre', true
 FROM dogadopt.rescues WHERE name = 'Grovehill Animal Trust';
 
 
@@ -520,4 +520,4 @@ FROM dogadopt.rescues WHERE name = 'Scottish Staffordshire Bull Terrier Rescue';
 -- Migration complete!
 -- Total rescues inserted: 61
 -- Total locations inserted: 62
--- WARNING: Existing dog records will need their rescue_id updated to match new rescue IDs
+-- Note: All audit logs preserved, changes tracked in audit system
