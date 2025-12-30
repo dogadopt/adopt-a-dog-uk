@@ -49,31 +49,26 @@ const DogGrid = () => {
   const endIndex = startIndex + ITEMS_PER_PAGE;
   const paginatedDogs = filteredDogs.slice(startIndex, endIndex);
 
-  // Reset to page 1 when filters change
-  const resetPagination = () => {
-    setCurrentPage(1);
-  };
-
   const handleClearFilters = () => {
     setSizeFilter('All');
     setAgeFilter('All');
     setSearchQuery('');
-    resetPagination();
+    setCurrentPage(1);
   };
 
   const handleSizeChange = (size: SizeFilter) => {
     setSizeFilter(size);
-    resetPagination();
+    setCurrentPage(1);
   };
 
   const handleAgeChange = (age: AgeFilter) => {
     setAgeFilter(age);
-    resetPagination();
+    setCurrentPage(1);
   };
 
   const handleSearchChange = (query: string) => {
     setSearchQuery(query);
-    resetPagination();
+    setCurrentPage(1);
   };
 
   return (
@@ -200,7 +195,6 @@ const DogGrid = () => {
                           <PaginationItem>
                             <PaginationLink
                               isActive={true}
-                              className="cursor-pointer"
                             >
                               {currentPage}
                             </PaginationLink>
@@ -226,17 +220,15 @@ const DogGrid = () => {
                         )}
                         
                         {/* Last page */}
-                        {totalPages > 1 && (
-                          <PaginationItem>
-                            <PaginationLink
-                              onClick={() => setCurrentPage(totalPages)}
-                              isActive={currentPage === totalPages}
-                              className="cursor-pointer"
-                            >
-                              {totalPages}
-                            </PaginationLink>
-                          </PaginationItem>
-                        )}
+                        <PaginationItem>
+                          <PaginationLink
+                            onClick={() => setCurrentPage(totalPages)}
+                            isActive={currentPage === totalPages}
+                            className="cursor-pointer"
+                          >
+                            {totalPages}
+                          </PaginationLink>
+                        </PaginationItem>
                         
                         <PaginationItem>
                           <PaginationNext
