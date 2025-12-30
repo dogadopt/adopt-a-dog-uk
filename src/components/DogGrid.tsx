@@ -7,14 +7,26 @@ import { Search, Loader2 } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from '@/components/ui/pagination';
 
 type ViewMode = 'text-only' | 'with-images';
+
+const ITEMS_PER_PAGE = 10;
 
 const DogGrid = () => {
   const [sizeFilter, setSizeFilter] = useState<SizeFilter>('All');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('text-only');
+  const [currentPage, setCurrentPage] = useState(1);
   const { data: dogs = [], isLoading, error } = useDogs();
 
   const filteredDogs = useMemo(() => {
@@ -31,10 +43,37 @@ const DogGrid = () => {
     });
   }, [dogs, sizeFilter, ageFilter, searchQuery]);
 
+  // Calculate pagination values
+  const totalPages = Math.ceil(filteredDogs.length / ITEMS_PER_PAGE);
+  const startIndex = (currentPage - 1) * ITEMS_PER_PAGE;
+  const endIndex = startIndex + ITEMS_PER_PAGE;
+  const paginatedDogs = filteredDogs.slice(startIndex, endIndex);
+
+  // Reset to page 1 when filters change
+  const resetPagination = () => {
+    setCurrentPage(1);
+  };
+
   const handleClearFilters = () => {
     setSizeFilter('All');
     setAgeFilter('All');
     setSearchQuery('');
+    resetPagination();
+  };
+
+  const handleSizeChange = (size: SizeFilter) => {
+    setSizeFilter(size);
+    resetPagination();
+  };
+
+  const handleAgeChange = (age: AgeFilter) => {
+    setAgeFilter(age);
+    resetPagination();
+  };
+
+  const handleSearchChange = (query: string) => {
+    setSearchQuery(query);
+    resetPagination();
   };
 
   return (
@@ -54,8 +93,8 @@ const DogGrid = () => {
             <FilterSidebar
               sizeFilter={sizeFilter}
               ageFilter={ageFilter}
-              onSizeChange={setSizeFilter}
-              onAgeChange={setAgeFilter}
+              onSizeChange={handleSizeChange}
+              onAgeChange={handleAgeChange}
               onClearFilters={handleClearFilters}
             />
           </div>
@@ -84,7 +123,7 @@ const DogGrid = () => {
                   type="search"
                   placeholder="Search by name, breed, or location..."
                   value={searchQuery}
-                  onChange={(e) => setSearchQuery(e.target.value)}
+                  onChange={(e) => handleSearchChange(e.target.value)}
                   className="pl-10"
                 />
               </div>
@@ -103,17 +142,73 @@ const DogGrid = () => {
                 <p className="text-muted-foreground">Please try again later</p>
               </div>
             ) : filteredDogs.length > 0 ? (
-              <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
-                {filteredDogs.map((dog, index) => (
-                  <div
-                    key={dog.id}
-                    className="animate-fade-up"
-                    style={{ animationDelay: `${index * 0.1}s` }}
-                  >
-                    <DogCard dog={dog} viewMode={viewMode} />
+              <>
+                <div className="grid sm:grid-cols-2 xl:grid-cols-3 gap-6">
+                  {paginatedDogs.map((dog, index) => (
+                    <div
+                      key={dog.id}
+                      className="animate-fade-up"
+                      style={{ animationDelay: `${index * 0.1}s` }}
+                    >
+                      <DogCard dog={dog} viewMode={viewMode} />
+                    </div>
+                  ))}
+                </div>
+                
+                {totalPages > 1 && (
+                  <div className="mt-8">
+                    <Pagination>
+                      <PaginationContent>
+                        <PaginationItem>
+                          <PaginationPrevious
+                            onClick={() => setCurrentPage((prev) => Math.max(1, prev - 1))}
+                            className={currentPage === 1 ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                        
+                        {Array.from({ length: totalPages }, (_, i) => i + 1).map((page) => {
+                          // Show first page, last page, current page, and pages around current
+                          const showPage =
+                            page === 1 ||
+                            page === totalPages ||
+                            (page >= currentPage - 1 && page <= currentPage + 1);
+
+                          if (!showPage) {
+                            // Show ellipsis only once between ranges
+                            if (page === currentPage - 2 || page === currentPage + 2) {
+                              return (
+                                <PaginationItem key={page}>
+                                  <PaginationEllipsis />
+                                </PaginationItem>
+                              );
+                            }
+                            return null;
+                          }
+
+                          return (
+                            <PaginationItem key={page}>
+                              <PaginationLink
+                                onClick={() => setCurrentPage(page)}
+                                isActive={currentPage === page}
+                                className="cursor-pointer"
+                              >
+                                {page}
+                              </PaginationLink>
+                            </PaginationItem>
+                          );
+                        })}
+                        
+                        <PaginationItem>
+                          <PaginationNext
+                            onClick={() => setCurrentPage((prev) => Math.min(totalPages, prev + 1))}
+                            className={currentPage === totalPages ? 'pointer-events-none opacity-50' : 'cursor-pointer'}
+                          />
+                        </PaginationItem>
+                      </PaginationContent>
+                    </Pagination>
                   </div>
-                ))}
-              </div>
+                )}
+              </>
             ) : (
               <div className="text-center py-16 bg-card rounded-2xl shadow-soft">
                 <p className="font-display text-xl text-foreground mb-2">No dogs found</p>
