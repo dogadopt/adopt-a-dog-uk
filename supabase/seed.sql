@@ -125,24 +125,24 @@ INSERT INTO temp_rescues (name, type, region, website) VALUES
 ('Yorkshire Animal Sanctuary', 'Full', 'Yorkshire & The Humber', 'www.yorkshireanimalsanctuary.co.uk'),
 ('Yorkshire Coast Dog Rescue', 'Full', 'Yorkshire & The Humber', 'www.yorkshirecoastdogrescue.co.uk');
 
--- Upsert rescues: Insert new ones or update existing ones ONLY if there are changes
-INSERT INTO dogadopt.rescues (name, type, region, website)
-SELECT 
-  tr.name,
-  tr.type,
-  tr.region,
-  tr.website
-FROM temp_rescues tr
-ON CONFLICT (name) 
-DO UPDATE SET
-  type = EXCLUDED.type,
-  region = EXCLUDED.region,
-  website = EXCLUDED.website
-WHERE 
-  -- Only update if something actually changed
-  dogadopt.rescues.type IS DISTINCT FROM EXCLUDED.type OR
-  dogadopt.rescues.region IS DISTINCT FROM EXCLUDED.region OR
-  dogadopt.rescues.website IS DISTINCT FROM EXCLUDED.website;
+-- Merge rescues: Insert new, update changed, and delete removed ones
+MERGE INTO dogadopt.rescues AS target
+USING temp_rescues AS source
+ON target.name = source.name
+WHEN MATCHED AND (
+  target.type IS DISTINCT FROM source.type OR
+  target.region IS DISTINCT FROM source.region OR
+  target.website IS DISTINCT FROM source.website
+) THEN
+  UPDATE SET
+    type = source.type,
+    region = source.region,
+    website = source.website
+WHEN NOT MATCHED THEN
+  INSERT (name, type, region, website)
+  VALUES (source.name, source.type, source.region, source.website)
+WHEN NOT MATCHED BY SOURCE THEN
+  DELETE;
 
 -- Sync default locations for rescues that don't have any locations yet
 INSERT INTO dogadopt.locations (rescue_id, name, city, region, location_type, is_public)
