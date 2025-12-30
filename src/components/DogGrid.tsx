@@ -164,9 +164,9 @@ const DogGrid = () => {
                         {/* First page */}
                         <PaginationItem>
                           <PaginationLink
-                            onClick={() => setCurrentPage(1)}
+                            {...(currentPage !== 1 && { onClick: () => setCurrentPage(1) })}
                             isActive={currentPage === 1}
-                            className="cursor-pointer"
+                            className={currentPage !== 1 ? 'cursor-pointer' : ''}
                           >
                             1
                           </PaginationLink>
@@ -220,15 +220,17 @@ const DogGrid = () => {
                         )}
                         
                         {/* Last page */}
-                        <PaginationItem>
-                          <PaginationLink
-                            onClick={() => setCurrentPage(totalPages)}
-                            isActive={currentPage === totalPages}
-                            className="cursor-pointer"
-                          >
-                            {totalPages}
-                          </PaginationLink>
-                        </PaginationItem>
+                        {totalPages > 1 && (
+                          <PaginationItem>
+                            <PaginationLink
+                              {...(currentPage !== totalPages && { onClick: () => setCurrentPage(totalPages) })}
+                              isActive={currentPage === totalPages}
+                              className={currentPage !== totalPages ? 'cursor-pointer' : ''}
+                            >
+                              {totalPages}
+                            </PaginationLink>
+                          </PaginationItem>
+                        )}
                         
                         <PaginationItem>
                           <PaginationNext
