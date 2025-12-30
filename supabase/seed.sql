@@ -9,16 +9,10 @@
 -- Data source: https://adch.org.uk/wp-content/uploads/2025/09/Editable-Members-List-with-regions-01102025.pdf
 -- Only updates records when there are actual differences to minimize audit log noise
 
--- Create temporary table to hold rescue data
-CREATE TEMP TABLE IF NOT EXISTS temp_rescues (
-  name TEXT NOT NULL,
-  type TEXT NOT NULL DEFAULT 'Full',
-  region TEXT NOT NULL,
-  website TEXT
-);
-
--- Load rescue data
-INSERT INTO temp_rescues (name, type, region, website) VALUES
+-- Merge rescues: Insert new, update changed, and delete removed ones
+-- Using CTE to ensure data is available in the same transaction
+WITH temp_rescues AS (
+  SELECT name, type, region, website FROM (VALUES
 ('Aireworth Dogs in Need', 'Full', 'Yorkshire & The Humber', 'www.areworthdogsinneed.co.uk'),
 ('Akita Rescue & Welfare Trust (UK)', 'Full', 'South East England', 'www.akitarescue.org.uk'),
 ('All Creatures Great & Small', 'Full', 'South Wales', 'www.allcreaturesgreatandsmall.org.uk'),
@@ -123,9 +117,9 @@ INSERT INTO temp_rescues (name, type, region, website) VALUES
 ('Wild at Heart Foundation', 'Full', 'National', 'www.wildatheartfoundation.org'),
 ('Woodgreen The Animals Charity', 'Full', 'East England', 'www.woodgreen.org.uk'),
 ('Yorkshire Animal Sanctuary', 'Full', 'Yorkshire & The Humber', 'www.yorkshireanimalsanctuary.co.uk'),
-('Yorkshire Coast Dog Rescue', 'Full', 'Yorkshire & The Humber', 'www.yorkshirecoastdogrescue.co.uk');
-
--- Merge rescues: Insert new, update changed, and delete removed ones
+('Yorkshire Coast Dog Rescue', 'Full', 'Yorkshire & The Humber', 'www.yorkshirecoastdogrescue.co.uk')
+  ) AS t(name, type, region, website)
+)
 MERGE INTO dogadopt.rescues AS target
 USING temp_rescues AS source
 ON target.name = source.name
@@ -172,9 +166,6 @@ WHERE NOT EXISTS (
   FROM dogadopt.locations l 
   WHERE l.rescue_id = r.id
 );
-
--- Clean up
-DROP TABLE IF EXISTS temp_rescues;
 
 -- ========================================
 -- DEVELOPMENT SAMPLE DATA
