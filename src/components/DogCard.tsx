@@ -74,11 +74,19 @@ const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
 
         {dog.rescueSinceDate && (
           <div className="text-xs text-muted-foreground">
-            In rescue since {new Date(dog.rescueSinceDate).toLocaleDateString('en-GB', { 
-              year: 'numeric', 
-              month: 'short', 
-              day: 'numeric' 
-            })}
+            {(() => {
+              try {
+                const date = new Date(dog.rescueSinceDate);
+                if (isNaN(date.getTime())) return null;
+                return `In rescue since ${date.toLocaleDateString('en-GB', { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })}`;
+              } catch (e) {
+                return null;
+              }
+            })()}
           </div>
         )}
 

@@ -9,8 +9,6 @@ ALTER TABLE dogadopt.dogs
 COMMENT ON COLUMN dogadopt.dogs.rescue_since_date IS 'Date the dog was taken into the rescue (optional)';
 
 -- Update the dogs_complete view to include rescue_since_date
-DROP VIEW IF EXISTS dogadopt.dogs_complete;
-
 CREATE OR REPLACE VIEW dogadopt.dogs_complete AS
 SELECT 
   -- Core dog fields
@@ -278,8 +276,6 @@ END;
 $$;
 
 -- Update the dogs_audit_logs_resolved view to include rescue_since_date tracking
-DROP VIEW IF EXISTS dogadopt.dogs_audit_logs_resolved;
-
 CREATE OR REPLACE VIEW dogadopt.dogs_audit_logs_resolved AS
 SELECT 
   dal.id AS audit_id,
