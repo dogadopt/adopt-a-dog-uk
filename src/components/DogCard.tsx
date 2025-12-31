@@ -72,6 +72,16 @@ const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
           <span>{dog.rescue}</span>
         </div>
 
+        {dog.rescueSinceDate && (
+          <div className="text-xs text-muted-foreground">
+            In rescue since {new Date(dog.rescueSinceDate).toLocaleDateString('en-GB', { 
+              year: 'numeric', 
+              month: 'short', 
+              day: 'numeric' 
+            })}
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2">
           {dog.goodWithKids && (
             <Badge variant="success" className="text-xs">
