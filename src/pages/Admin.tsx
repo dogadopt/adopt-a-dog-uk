@@ -30,6 +30,7 @@ interface DogFormData {
   birthYear: string;
   birthMonth: string;
   birthDay: string;
+  rescueSinceDate: string;
   size: string;
   gender: string;
   location: string;
@@ -49,6 +50,7 @@ const initialFormData: DogFormData = {
   birthYear: '',
   birthMonth: '',
   birthDay: '',
+  rescueSinceDate: '',
   size: 'Medium',
   gender: 'Male',
   location: '',
@@ -109,6 +111,7 @@ const Admin = () => {
         birthYear: dog.birthYear ? String(dog.birthYear) : '',
         birthMonth: dog.birthMonth ? String(dog.birthMonth) : '',
         birthDay: dog.birthDay ? String(dog.birthDay) : '',
+        rescueSinceDate: dog.rescueSinceDate || '',
         size: dog.size,
         gender: dog.gender,
         location: dog.location,
@@ -264,6 +267,7 @@ const Admin = () => {
         birth_year: formData.birthYear ? parseInt(formData.birthYear) : null,
         birth_month: formData.birthMonth ? parseInt(formData.birthMonth) : null,
         birth_day: formData.birthDay ? parseInt(formData.birthDay) : null,
+        rescue_since_date: formData.rescueSinceDate || null,
         size: formData.size,
         gender: formData.gender,
         rescue_id: formData.rescue_id || null,
@@ -512,6 +516,19 @@ const Admin = () => {
                   <p className="text-xs text-muted-foreground">
                     Year is required if you provide month or day. If birth date is not available, the manual age category will be used.
                   </p>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="rescueSinceDate">In Rescue Since (Optional)</Label>
+                  <p className="text-xs text-muted-foreground mb-2">
+                    Enter the date the dog was taken into the rescue if known.
+                  </p>
+                  <Input
+                    id="rescueSinceDate"
+                    type="date"
+                    value={formData.rescueSinceDate}
+                    onChange={(e) => setFormData({ ...formData, rescueSinceDate: e.target.value })}
+                  />
                 </div>
 
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
