@@ -1,20 +1,27 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { MapPin, ExternalLink } from 'lucide-react';
+import { MapPin, ExternalLink, Navigation } from 'lucide-react';
 import type { Rescue } from '@/hooks/useRescues';
 
 interface RescueCardProps {
   rescue: Rescue;
+  showDistance?: boolean;
 }
 
-const RescueCard = ({ rescue }: RescueCardProps) => {
+const RescueCard = ({ rescue, showDistance = false }: RescueCardProps) => {
   const hasWebsite = !!rescue.website;
 
   return (
     <article className="group bg-card rounded-2xl overflow-hidden shadow-card hover:shadow-hover transition-all duration-300 hover:-translate-y-1">
       <div className="p-5 space-y-4">
-        <div className="flex gap-2 mb-2">
+        <div className="flex gap-2 mb-2 flex-wrap">
           <Badge variant="secondary">{rescue.type}</Badge>
+          {showDistance && rescue.distance !== undefined && (
+            <Badge variant="outline" className="gap-1">
+              <Navigation className="w-3 h-3" />
+              {rescue.distance} km
+            </Badge>
+          )}
         </div>
         
         <div>

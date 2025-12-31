@@ -14,6 +14,9 @@ build/
 *.log
 npm-debug.log*
 
+# Generated files
+charity-numbers.csv
+
 # Editor directories
 .vscode/
 .idea/

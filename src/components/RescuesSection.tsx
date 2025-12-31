@@ -1,8 +1,11 @@
 import { useState, useMemo } from 'react';
 import RescueCard from './RescueCard';
 import { useRescues } from '@/hooks/useRescues';
-import { Search, Loader2 } from 'lucide-react';
+import { useGeolocation } from '@/hooks/useGeolocation';
+import { Search, Loader2, MapPin, Navigation, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import {
   Pagination,
   PaginationContent,
@@ -18,7 +21,18 @@ const ITEMS_PER_PAGE = 12;
 const RescuesSection = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
-  const { data: rescues = [], isLoading, error } = useRescues();
+  const { 
+    latitude, 
+    longitude, 
+    error: locationError, 
+    loading: locationLoading,
+    hasLocation,
+    requestLocation,
+    clearLocation 
+  } = useGeolocation();
+  
+  const userLocation = hasLocation ? { latitude: latitude!, longitude: longitude! } : undefined;
+  const { data: rescues = [], isLoading, error } = useRescues(userLocation);
 
   const filteredRescues = useMemo(() => {
     return rescues.filter((rescue) => {
@@ -66,10 +80,54 @@ const RescuesSection = () => {
               className="pl-10"
             />
           </div>
-          <p className="text-muted-foreground">
-            <span className="font-semibold text-foreground">{filteredRescues.length}</span> rescues found
-          </p>
+          <div className="flex items-center gap-2">
+            {hasLocation ? (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={clearLocation}
+                className="gap-2"
+              >
+                <MapPin className="w-4 h-4" />
+                Near Me
+                <X className="w-3 h-3" />
+              </Button>
+            ) : (
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={requestLocation}
+                disabled={locationLoading}
+                className="gap-2"
+              >
+                {locationLoading ? (
+                  <Loader2 className="w-4 h-4 animate-spin" />
+                ) : (
+                  <Navigation className="w-4 h-4" />
+                )}
+                Find Near Me
+              </Button>
+            )}
+            <p className="text-muted-foreground">
+              <span className="font-semibold text-foreground">{filteredRescues.length}</span> rescues
+            </p>
+          </div>
         </div>
+
+        {locationError && (
+          <Alert variant="destructive" className="mb-6">
+            <AlertDescription>{locationError}</AlertDescription>
+          </Alert>
+        )}
+
+        {hasLocation && (
+          <Alert className="mb-6 border-primary/50 bg-primary/5">
+            <MapPin className="w-4 h-4" />
+            <AlertDescription>
+              Showing rescues sorted by distance from your location
+            </AlertDescription>
+          </Alert>
+        )}
 
         {isLoading ? (
           <div className="flex items-center justify-center py-16">
@@ -89,7 +147,7 @@ const RescuesSection = () => {
                   className="animate-fade-up"
                   style={{ animationDelay: `${index * 0.1}s` }}
                 >
-                  <RescueCard rescue={rescue} />
+                  <RescueCard rescue={rescue} showDistance={hasLocation} />
                 </div>
               ))}
             </div>
