@@ -27,9 +27,11 @@ const Header = () => {
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-16">
           <Link to="/" className="flex items-center gap-2">
-            <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
-              <Heart className="w-5 h-5 text-primary-foreground" fill="currentColor" />
-            </div>
+            <img 
+              src="/brand_images/logos/Original Logo Symbol.png" 
+              alt="DogAdopt Logo" 
+              className="w-10 h-10 object-contain"
+            />
             <span className="font-display text-xl font-semibold text-foreground">
               dogadopt<span className="text-primary">.co.uk</span>
             </span>

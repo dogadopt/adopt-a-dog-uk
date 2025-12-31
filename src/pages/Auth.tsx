@@ -101,9 +101,11 @@ const Auth = () => {
       <Card className="w-full max-w-md">
         <CardHeader className="text-center">
           <div className="flex justify-center mb-4">
-            <div className="w-12 h-12 rounded-full bg-primary flex items-center justify-center">
-              <Heart className="w-6 h-6 text-primary-foreground" fill="currentColor" />
-            </div>
+            <img 
+              src="/brand_images/logos/Original Logo Symbol.png" 
+              alt="DogAdopt Logo" 
+              className="w-12 h-12 object-contain"
+            />
           </div>
           <CardTitle className="font-display text-2xl">
             {isLogin ? 'Welcome Back' : 'Create Account'}
