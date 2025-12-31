@@ -24,7 +24,7 @@ const Hero = () => {
             </h1>
             
             <p className="text-lg text-muted-foreground max-w-lg">
-              Discover rescue dogs from quality ADCH-accredited shelters across the UK. 
+              Discover rescue dogs from quality rescue organisations across the UK. 
               100% non-profit. Every adoption saves a life and helps end the puppy farming crisis.
             </p>
 

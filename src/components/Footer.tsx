@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer id="rescues" className="bg-foreground text-background py-16">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-4 gap-8 mb-12">
+        <div className="grid md:grid-cols-3 gap-8 mb-12">
           <div className="md:col-span-2">
             <a href="/" className="flex items-center gap-2 mb-4">
               <div className="w-10 h-10 rounded-full bg-primary flex items-center justify-center">
@@ -20,7 +20,7 @@ const Footer = () => {
               Our mission is to promote adoption over purchasing and help every dog find their forever home.
             </p>
             <p className="text-background/60 text-sm max-w-md">
-              We exclusively feature ADCH-accredited rescues and hope to build strong partnerships with ADCH and rescue organisations in the future.
+              Currently independent, we aim to feature quality rescue organisations and hope to build strong partnerships with ADCH and rescue organisations in the future.
             </p>
           </div>
 
@@ -29,20 +29,8 @@ const Footer = () => {
             <ul className="space-y-2 text-background/70">
               <li><a href="#dogs" className="hover:text-primary transition-colors">Find a Dog</a></li>
               <li><Link to="/about" className="hover:text-primary transition-colors">Why Adopt?</Link></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Rescue Partners</a></li>
-              <li><a href="#" className="hover:text-primary transition-colors">Success Stories</a></li>
+              <li><a href="#rescues" className="hover:text-primary transition-colors">Rescue Organisations</a></li>
             </ul>
-          </div>
-
-          <div>
-            <h4 className="font-display font-semibold mb-4">ADCH Partner Rescues</h4>
-            <ul className="space-y-2 text-background/70">
-              <li>Battersea Dogs Home</li>
-              <li>Dogs Trust</li>
-              <li>RSPCA</li>
-              <li>Blue Cross</li>
-            </ul>
-            <p className="text-xs text-background/50 mt-3">Quality ADCH-accredited rescues only</p>
           </div>
         </div>
 
