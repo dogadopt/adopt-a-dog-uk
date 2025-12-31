@@ -13,8 +13,8 @@ const features = [
   },
   {
     icon: Shield,
-    title: 'ADCH Quality Only',
-    description: 'We exclusively feature ADCH-accredited rescues - trusted organisations committed to the highest animal welfare standards.',
+    title: 'Quality Rescues',
+    description: 'We aim to feature quality rescue organisations committed to high animal welfare standards.',
   },
   {
     icon: Sparkles,
@@ -58,15 +58,15 @@ const AboutSection = () => {
         <div className="mt-16 bg-gradient-to-r from-primary/10 via-primary/5 to-accent/10 rounded-3xl p-8 md:p-12">
           <div className="max-w-3xl mx-auto text-center">
             <h3 className="font-display text-2xl md:text-3xl font-bold text-foreground mb-4">
-              Understanding the Crisis: Over 100,000 Dogs Need Homes
+              Understanding the Need for Rescue Dog Adoption
             </h3>
             <p className="text-muted-foreground mb-4">
-              This website exists to give you visibility on the true number of rescue dogs in the UK so their plight can be understood. 
-              While puppy farms and irresponsible breeders continue to profit, rescue centres are overflowing with dogs desperate for loving families.
+              This website exists to connect rescue dogs with loving families across the UK. 
+              While puppy farms and irresponsible breeders continue to profit, rescue centres are filled with dogs desperate for loving families.
             </p>
             <p className="text-muted-foreground mb-4">
-              We help you understand the adoption process and connect you with ADCH-accredited rescues - the gold standard in animal welfare. 
-              By choosing to adopt, you're not just getting a pet — you're making a stand against the cruel puppy trade and supporting ethical, quality rescues.
+              We help you understand the adoption process and connect you with quality rescue organisations. 
+              By choosing to adopt, you're not just getting a pet — you're making a stand against the cruel puppy trade and supporting ethical rescues.
             </p>
             <p className="text-foreground font-medium mb-2">
               <span className="text-primary">#AdoptDontShop</span> — Because every dog deserves a second chance.
