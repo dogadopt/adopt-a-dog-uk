@@ -26,10 +26,23 @@ export const useGeolocation = () => {
       return;
     }
 
+    // Check if we're on a secure context (HTTPS or localhost)
+    if (window.location.protocol !== 'https:' && window.location.hostname !== 'localhost') {
+      setLocation({
+        latitude: null,
+        longitude: null,
+        error: 'Geolocation requires a secure connection (HTTPS)',
+        loading: false,
+      });
+      return;
+    }
+
     setLocation(prev => ({ ...prev, loading: true, error: null }));
+    console.log('Requesting location...');
 
     navigator.geolocation.getCurrentPosition(
       (position) => {
+        console.log('Location acquired:', position.coords.latitude, position.coords.longitude);
         setLocation({
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -38,6 +51,7 @@ export const useGeolocation = () => {
         });
       },
       (error) => {
+        console.error('Geolocation error:', error.code, error.message);
         let errorMessage = 'Unable to retrieve your location';
         
         switch (error.code) {
@@ -48,7 +62,7 @@ export const useGeolocation = () => {
             errorMessage = 'Location information is unavailable.';
             break;
           case error.TIMEOUT:
-            errorMessage = 'Location request timed out.';
+            errorMessage = 'Location request timed out. Please try again.';
             break;
         }
 

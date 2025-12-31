@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import RescueCard from './RescueCard';
 import { useRescues } from '@/hooks/useRescues';
 import { useGeolocation } from '@/hooks/useGeolocation';
@@ -33,6 +33,33 @@ const RescuesSection = () => {
   
   const userLocation = hasLocation ? { latitude: latitude!, longitude: longitude! } : undefined;
   const { data: rescues = [], isLoading, error } = useRescues(userLocation);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Location state changed:', { 
+      hasLocation, 
+      latitude, 
+      longitude, 
+      locationError, 
+      locationLoading 
+    });
+  }, [hasLocation, latitude, longitude, locationError, locationLoading]);
+
+  useEffect(() => {
+    console.log('Rescues loaded:', rescues.length, 'with location:', !!userLocation);
+    if (userLocation && rescues.length > 0) {
+      const withDistance = rescues.filter(r => r.distance !== undefined).length;
+      console.log(`${withDistance} rescues have calculated distances`);
+    }
+  }, [rescues, userLocation]);
+
+  const handleLocationRequest = () => {
+    console.log('Find Near Me button clicked');
+    console.log('Navigator geolocation available:', !!navigator.geolocation);
+    console.log('Is secure context:', window.isSecureContext);
+    console.log('Current protocol:', window.location.protocol);
+    requestLocation();
+  };
 
   const filteredRescues = useMemo(() => {
     return rescues.filter((rescue) => {
@@ -96,7 +123,7 @@ const RescuesSection = () => {
               <Button
                 variant="outline"
                 size="sm"
-                onClick={requestLocation}
+                onClick={handleLocationRequest}
                 disabled={locationLoading}
                 className="gap-2"
               >
@@ -116,7 +143,17 @@ const RescuesSection = () => {
 
         {locationError && (
           <Alert variant="destructive" className="mb-6">
-            <AlertDescription>{locationError}</AlertDescription>
+            <AlertDescription>
+              <div className="space-y-2">
+                <p className="font-semibold">{locationError}</p>
+                {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
+                  <p className="text-sm">Note: This site must use HTTPS for location features to work.</p>
+                )}
+                <p className="text-sm">
+                  To enable location: Click the lock icon in your browser's address bar and allow location access.
+                </p>
+              </div>
+            </AlertDescription>
           </Alert>
         )}
 
