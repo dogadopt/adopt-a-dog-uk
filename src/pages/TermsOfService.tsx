@@ -10,7 +10,7 @@ const TermsOfService = () => {
         
         <div className="prose prose-slate max-w-none">
           <p className="text-muted-foreground mb-6">
-            <strong>Last Updated:</strong> {new Date().toLocaleDateString('en-GB', { year: 'numeric', month: 'long', day: 'numeric' })}
+            <strong>Last Updated:</strong> 31 December 2024
           </p>
 
           <section className="mb-8">
