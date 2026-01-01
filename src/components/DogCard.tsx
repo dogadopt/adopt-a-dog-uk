@@ -72,6 +72,24 @@ const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
           <span>{dog.rescue}</span>
         </div>
 
+        {dog.rescueSinceDate && (
+          <div className="text-xs text-muted-foreground">
+            {(() => {
+              try {
+                const date = new Date(dog.rescueSinceDate);
+                if (isNaN(date.getTime())) return null;
+                return `In rescue since ${date.toLocaleDateString('en-GB', { 
+                  year: 'numeric', 
+                  month: 'short', 
+                  day: 'numeric' 
+                })}`;
+              } catch (e) {
+                return null;
+              }
+            })()}
+          </div>
+        )}
+
         <div className="flex flex-wrap gap-2">
           {dog.goodWithKids && (
             <Badge variant="success" className="text-xs">

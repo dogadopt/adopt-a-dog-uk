@@ -75,6 +75,7 @@ interface DogRow {
   birth_year: number | null;
   birth_month: number | null;
   birth_day: number | null;
+  rescue_since_date: string | null;
   created_at: string;
   rescues: {
     id: string;
@@ -126,6 +127,7 @@ export const useDogs = () => {
           birthYear: dog.birth_year,
           birthMonth: dog.birth_month,
           birthDay: dog.birth_day,
+          rescueSinceDate: dog.rescue_since_date,
           computedAge: computedAge || dog.age, // Use computed age if available, otherwise fall back to manual age
           size: dog.size as 'Small' | 'Medium' | 'Large',
           gender: dog.gender as 'Male' | 'Female',
