@@ -12,8 +12,10 @@ Previously, the application was hardcoded to use `/adopt-a-dog-uk/` as the base 
 
 The base path is now configurable via the `VITE_BASE_PATH` environment variable:
 
-- **Current deployment:** `/adopt-a-dog-uk/` (GitHub Pages subdirectory)
-- **Future deployment:** `/` (root domain at www.dogadopt.co.uk)
+- **Current deployment:** `/` (custom domain at www.dogadopt.co.uk)
+- **Alternative deployment:** `/adopt-a-dog-uk/` (GitHub Pages subdirectory at dogadopt.github.io/adopt-a-dog-uk/)
+
+**IMPORTANT:** Since we use a custom domain (www.dogadopt.co.uk), the base path MUST be `/` for production.
 
 ## Configuration
 
@@ -21,10 +23,12 @@ The base path is now configurable via the `VITE_BASE_PATH` environment variable:
 
 1. Edit your `.env` file:
    ```bash
-   VITE_BASE_PATH="/adopt-a-dog-uk/"  # or "/" for root domain testing
+   VITE_BASE_PATH="/"  # Use "/" for custom domain (production configuration)
    ```
 
 2. The default value (if not set) is `/` for convenience in local development.
+
+**Note:** Use `/adopt-a-dog-uk/` only if testing subdirectory deployment (not used in production).
 
 ### Production Deployment (GitHub Actions)
 
@@ -32,17 +36,29 @@ The base path is now configurable via the `VITE_BASE_PATH` environment variable:
    - Go to **Settings → Secrets and variables → Actions**
    - Click **New repository secret**
    - Name: `VITE_BASE_PATH`
-   - Value: `/adopt-a-dog-uk/` (current) or `/` (future)
+   - Value: `/` (for custom domain www.dogadopt.co.uk)
 
 2. The GitHub Actions workflow automatically uses this secret during the build process.
 
-## Migration to Root Domain
+**CRITICAL:** For custom domain deployment, this MUST be set to `/` or left empty (defaults to `/`).
 
-When ready to deploy to the root domain (www.dogadopt.co.uk):
+## Custom Domain Configuration
 
-1. Update the GitHub secret `VITE_BASE_PATH` from `/adopt-a-dog-uk/` to `/`
-2. Trigger a new deployment (push to main or manual workflow dispatch)
-3. No code changes required!
+The site is deployed to a custom domain (www.dogadopt.co.uk) via GitHub Pages:
+
+1. Ensure `VITE_BASE_PATH` GitHub secret is set to `/`
+2. Add `public/CNAME` file with domain name (www.dogadopt.co.uk)
+3. Configure DNS with CNAME pointing to `dogadopt.github.io`
+4. Enable HTTPS in GitHub Pages settings
+
+### Migration Back to Subdirectory (if needed)
+
+To deploy to subdirectory (dogadopt.github.io/adopt-a-dog-uk/):
+
+1. Update the GitHub secret `VITE_BASE_PATH` from `/` to `/adopt-a-dog-uk/`
+2. Remove or update the `public/CNAME` file
+3. Trigger a new deployment (push to main or manual workflow dispatch)
+4. No code changes required!
 
 ## Technical Details
 
@@ -63,18 +79,18 @@ When ready to deploy to the root domain (www.dogadopt.co.uk):
 
 ## Testing
 
-### Test Current Configuration (Subdirectory)
+### Test Custom Domain Configuration (Current Production)
 ```bash
 npm run build
 cat dist/index.html | grep "src="
-# Should show: src="/adopt-a-dog-uk/assets/..."
+# Should show: src="/assets/..." (root path)
 ```
 
-### Test Root Domain Configuration
+### Test Subdirectory Configuration (Alternative)
 ```bash
-VITE_BASE_PATH="/" npm run build
+VITE_BASE_PATH="/adopt-a-dog-uk/" npm run build
 cat dist/index.html | grep "src="
-# Should show: src="/assets/..."
+# Should show: src="/adopt-a-dog-uk/assets/..."
 ```
 
 ## Benefits
