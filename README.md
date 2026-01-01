@@ -118,6 +118,7 @@ See [CI/CD Setup Documentation](docs/CI_CD_SETUP.md) for detailed configuration 
    - `VITE_SUPABASE_URL`
    - `VITE_SUPABASE_PUBLISHABLE_KEY`
    - `VITE_SUPABASE_PROJECT_ID`
+   - `VITE_BASE_PATH` (set to `/` for custom domain www.dogadopt.co.uk)
    - `SUPABASE_ACCESS_TOKEN`
    - `SUPABASE_PROJECT_REF`
 3. Push to `main` branch to trigger deployment

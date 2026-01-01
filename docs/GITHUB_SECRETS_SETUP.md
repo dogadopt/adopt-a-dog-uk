@@ -16,7 +16,7 @@ You need to set up the following secrets in your GitHub repository:
 - `VITE_SUPABASE_URL` - Your Supabase project URL
 - `VITE_SUPABASE_PUBLISHABLE_KEY` - Your Supabase anonymous/publishable key (client-side key)
 - `VITE_SUPABASE_PROJECT_ID` - Your Supabase project ID
-- `VITE_BASE_PATH` - Base path for deployment (e.g., `/adopt-a-dog-uk/` for GitHub Pages subdirectory, `/` for root domain)
+- `VITE_BASE_PATH` - Base path for deployment (`/` for custom domain www.dogadopt.co.uk, or `/adopt-a-dog-uk/` for subdirectory deployment)
 
 ### Deployment Secrets (Required for Database Migrations)
 - `SUPABASE_ACCESS_TOKEN` - Supabase CLI access token
@@ -57,8 +57,8 @@ You need to set up the following secrets in your GitHub repository:
    - Paste the corresponding value
    - Click "Add secret"
 6. **For `VITE_BASE_PATH`:**
-   - Use `/adopt-a-dog-uk/` for the current GitHub Pages deployment
-   - When moving to root domain, change this to `/`
+   - **IMPORTANT:** Use `/` for the custom domain deployment (www.dogadopt.co.uk)
+   - Only use `/adopt-a-dog-uk/` if deploying to dogadopt.github.io/adopt-a-dog-uk/ instead
 7. **Repeat for all 6 secrets**
 
 ### Step 3: Verify Setup
@@ -69,7 +69,7 @@ After adding all secrets:
 2. **Find the latest "Deploy to GitHub Pages" workflow run**
 3. **If it failed due to missing secrets, click "Re-run all jobs"**
 4. **Wait for the deployment to complete**
-5. **Visit your GitHub Pages site** (usually `https://[username].github.io/adopt-a-dog-uk/`)
+5. **Visit your site at** https://www.dogadopt.co.uk/
 
 ## Troubleshooting
 
