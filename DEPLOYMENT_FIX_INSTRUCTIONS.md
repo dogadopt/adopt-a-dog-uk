@@ -26,14 +26,14 @@ Update the GitHub Actions secret `VITE_BASE_PATH` to use the root path for custo
 ## What This Changes
 
 ### Before (Broken):
-- Build output: `<script src="/adopt-a-dog-uk/assets/main-xxx.js">`
-- Browser tries to load: `https://www.dogadopt.co.uk/adopt-a-dog-uk/assets/main-xxx.js`
-- Result: 404 error (assets are at root `/assets/`, not in subdirectory)
+  - Build output: `<script src="/adopt-a-dog-uk/assets/main-xxx.js">`
+  - Browser tries to load: `https://www.dogadopt.co.uk/adopt-a-dog-uk/assets/main-xxx.js`
+  - Result: 404 error (assets are at root `/assets/`, not in subdirectory)
 
 ### After (Fixed):
-- Build output: `<script src="/assets/main-xxx.js">`
-- Browser loads: `https://www.dogadopt.co.uk/assets/main-xxx.js`
-- Result: ✅ Site loads correctly
+  - Build output: `<script src="/assets/main-xxx.js">`
+  - Browser loads: `https://www.dogadopt.co.uk/assets/main-xxx.js`
+  - Result: ✅ Site loads correctly
 
 ## Files Modified in This PR
 

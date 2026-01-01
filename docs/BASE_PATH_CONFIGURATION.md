@@ -40,7 +40,7 @@ The base path is now configurable via the `VITE_BASE_PATH` environment variable:
 
 2. The GitHub Actions workflow automatically uses this secret during the build process.
 
-**CRITICAL:** For custom domain deployment, this MUST be set to `/` or left empty (defaults to `/`).
+**CRITICAL:** For custom domain deployment, this MUST be set to `/`. If the secret is not set, it defaults to `/`.
 
 ## Custom Domain Configuration
 
