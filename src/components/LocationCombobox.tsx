@@ -22,7 +22,7 @@ const COMMON_UK_LOCATIONS = [
   "Wales",
   "Northern Ireland",
   "National",
-];
+] as const;
 
 export function LocationCombobox({
   value = "",
