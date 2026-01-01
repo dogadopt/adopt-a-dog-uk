@@ -111,7 +111,7 @@ export function Combobox({
                 return (
                   <CommandItem
                     key={option.value}
-                    value={option.label}
+                    value={option.value}
                     keywords={option.keywords}
                     onSelect={() => handleSelect(option.value)}
                   >
