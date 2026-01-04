@@ -5,7 +5,7 @@ const Footer = () => {
   return (
     <footer id="rescues" className="bg-foreground text-background py-16">
       <div className="container mx-auto px-4">
-        <div className="grid md:grid-cols-3 gap-8 mb-12">
+        <div className="grid md:grid-cols-4 gap-8 mb-12">
           <div className="md:col-span-2">
             <a href="/" className="flex items-center gap-2 mb-4">
               <img 
@@ -32,6 +32,15 @@ const Footer = () => {
               <li><a href="#dogs" className="hover:text-primary transition-colors">Find a Dog</a></li>
               <li><Link to="/about" className="hover:text-primary transition-colors">Why Adopt?</Link></li>
               <li><a href="#rescues" className="hover:text-primary transition-colors">Rescue Organisations</a></li>
+              <li><Link to="/contact" className="hover:text-primary transition-colors">Contact</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-display font-semibold mb-4">Legal</h4>
+            <ul className="space-y-2 text-background/70">
+              <li><Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link></li>
+              <li><Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link></li>
             </ul>
           </div>
         </div>
