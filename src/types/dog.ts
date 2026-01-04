@@ -27,3 +27,4 @@ export interface Dog {
 
 export type SizeFilter = 'All' | 'Small' | 'Medium' | 'Large';
 export type AgeFilter = 'All' | 'Puppy' | 'Young' | 'Adult' | 'Senior';
+export type StatusFilter = 'available' | 'reserved' | 'adopted' | 'on_hold' | 'fostered' | 'withdrawn';

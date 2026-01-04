@@ -15,6 +15,46 @@ const DogCard = ({ dog, viewMode = 'text-only', showDistance = false }: DogCardP
   // Use computed age from birth date if available, otherwise fall back to manual age
   const displayAge = dog.computedAge || dog.age;
 
+  // Format status for display
+  const formatStatus = (status: string) => {
+    switch (status) {
+      case 'available':
+        return 'Available';
+      case 'reserved':
+        return 'Reserved';
+      case 'adopted':
+        return 'Adopted';
+      case 'on_hold':
+        return 'On Hold';
+      case 'fostered':
+        return 'Fostered';
+      case 'withdrawn':
+        return 'Withdrawn';
+      default:
+        return status;
+    }
+  };
+
+  // Get badge variant based on status
+  const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'warm' | 'success' => {
+    switch (status) {
+      case 'available':
+        return 'success';
+      case 'reserved':
+        return 'warm';
+      case 'adopted':
+        return 'secondary';
+      case 'on_hold':
+        return 'outline';
+      case 'fostered':
+        return 'default';
+      case 'withdrawn':
+        return 'destructive';
+      default:
+        return 'default';
+    }
+  };
+
   // Add UTM parameters to dog profile URL
   const getDogProfileUrl = () => {
     if (!dog.profileUrl) return null;
@@ -44,7 +84,8 @@ const DogCard = ({ dog, viewMode = 'text-only', showDistance = false }: DogCardP
             alt={`${dog.name} - ${dog.breed} available for adoption`}
             className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
           />
-          <div className="absolute top-3 left-3 flex gap-2">
+          <div className="absolute top-3 left-3 flex gap-2 flex-wrap">
+            <Badge variant={getStatusVariant(dog.status)}>{formatStatus(dog.status)}</Badge>
             <Badge variant="warm">{displayAge}</Badge>
             <Badge variant="secondary">{dog.size}</Badge>
           </div>
@@ -57,6 +98,7 @@ const DogCard = ({ dog, viewMode = 'text-only', showDistance = false }: DogCardP
       <div className="p-5 space-y-4">
         {!showImage && (
           <div className="flex gap-2 mb-2 flex-wrap">
+            <Badge variant={getStatusVariant(dog.status)}>{formatStatus(dog.status)}</Badge>
             <Badge variant="warm">{displayAge}</Badge>
             <Badge variant="secondary">{dog.size}</Badge>
             {showDistance && dog.distance !== undefined && (
