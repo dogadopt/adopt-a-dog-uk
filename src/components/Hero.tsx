@@ -8,6 +8,7 @@ import { Link } from 'react-router-dom';
 const Hero = () => {
   const { data: dogs = [] } = useDogs();
   const { data: rescues = [] } = useRescues();
+  const availableDogs = dogs.filter(dog => dog.status === 'available');
   return (
     <section className="relative min-h-[600px] gradient-hero overflow-hidden">
       <div className="container mx-auto px-4 py-16 lg:py-24">
@@ -42,7 +43,7 @@ const Hero = () => {
 
             <div className="grid grid-cols-3 gap-8 pt-8 border-t border-border">
               <div>
-                <p className="font-display text-3xl font-bold text-primary">{dogs.length.toLocaleString()}</p>
+                <p className="font-display text-3xl font-bold text-primary">{availableDogs.length.toLocaleString()}</p>
                 <p className="text-sm text-muted-foreground">Dogs Available</p>
               </div>
               <div>
