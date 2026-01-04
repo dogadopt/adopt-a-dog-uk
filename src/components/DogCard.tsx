@@ -1,14 +1,15 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { Heart, MapPin, Users } from 'lucide-react';
+import { Heart, MapPin, Users, Navigation } from 'lucide-react';
 import type { Dog } from '@/types/dog';
 
 interface DogCardProps {
   dog: Dog;
   viewMode?: 'text-only' | 'with-images';
+  showDistance?: boolean;
 }
 
-const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
+const DogCard = ({ dog, viewMode = 'text-only', showDistance = false }: DogCardProps) => {
   const showImage = viewMode === 'with-images';
   
   // Use computed age from birth date if available, otherwise fall back to manual age
@@ -55,9 +56,15 @@ const DogCard = ({ dog, viewMode = 'text-only' }: DogCardProps) => {
 
       <div className="p-5 space-y-4">
         {!showImage && (
-          <div className="flex gap-2 mb-2">
+          <div className="flex gap-2 mb-2 flex-wrap">
             <Badge variant="warm">{displayAge}</Badge>
             <Badge variant="secondary">{dog.size}</Badge>
+            {showDistance && dog.distance !== undefined && (
+              <Badge variant="outline" className="gap-1">
+                <Navigation className="w-3 h-3" />
+                {dog.distance} km
+              </Badge>
+            )}
           </div>
         )}
         <div>

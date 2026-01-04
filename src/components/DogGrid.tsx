@@ -2,9 +2,12 @@ import { useState, useMemo, useEffect, useRef } from 'react';
 import DogCard from './DogCard';
 import FilterSidebar from './FilterSidebar';
 import { useDogs } from '@/hooks/useDogs';
+import { useGeolocation } from '@/hooks/useGeolocation';
 import type { SizeFilter, AgeFilter } from '@/types/dog';
-import { Search, Loader2 } from 'lucide-react';
+import { Search, Loader2, MapPin, Navigation, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Label } from '@/components/ui/label';
 import {
@@ -27,8 +30,46 @@ const DogGrid = () => {
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('text-only');
   const [currentPage, setCurrentPage] = useState(1);
-  const { data: dogs = [], isLoading, error } = useDogs();
+  const { 
+    latitude, 
+    longitude, 
+    error: locationError, 
+    loading: locationLoading,
+    hasLocation,
+    requestLocation,
+    clearLocation 
+  } = useGeolocation();
+  
+  const userLocation = hasLocation ? { latitude: latitude!, longitude: longitude! } : undefined;
+  const { data: dogs = [], isLoading, error } = useDogs(userLocation);
   const gridTopRef = useRef<HTMLDivElement>(null);
+
+  // Debug logging
+  useEffect(() => {
+    console.log('Location state changed:', { 
+      hasLocation, 
+      latitude, 
+      longitude, 
+      locationError, 
+      locationLoading 
+    });
+  }, [hasLocation, latitude, longitude, locationError, locationLoading]);
+
+  useEffect(() => {
+    console.log('Dogs loaded:', dogs.length, 'with location:', !!userLocation);
+    if (userLocation && dogs.length > 0) {
+      const withDistance = dogs.filter(d => d.distance !== undefined).length;
+      console.log(`${withDistance} dogs have calculated distances`);
+    }
+  }, [dogs, userLocation]);
+
+  const handleLocationRequest = () => {
+    console.log('Find Near Me button clicked');
+    console.log('Navigator geolocation available:', !!navigator.geolocation);
+    console.log('Is secure context:', window.isSecureContext);
+    console.log('Current protocol:', window.location.protocol);
+    requestLocation();
+  };
 
   const filteredDogs = useMemo(() => {
     return dogs.filter((dog) => {
@@ -132,10 +173,64 @@ const DogGrid = () => {
                   className="pl-10"
                 />
               </div>
-              <p className="text-muted-foreground">
-                <span className="font-semibold text-foreground">{filteredDogs.length}</span> dogs found
-              </p>
+              <div className="flex items-center gap-2">
+                {hasLocation ? (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={clearLocation}
+                    className="gap-2"
+                  >
+                    <MapPin className="w-4 h-4" />
+                    Near Me
+                    <X className="w-3 h-3" />
+                  </Button>
+                ) : (
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={handleLocationRequest}
+                    disabled={locationLoading}
+                    className="gap-2"
+                  >
+                    {locationLoading ? (
+                      <Loader2 className="w-4 h-4 animate-spin" />
+                    ) : (
+                      <Navigation className="w-4 h-4" />
+                    )}
+                    Find Near Me
+                  </Button>
+                )}
+                <p className="text-muted-foreground">
+                  <span className="font-semibold text-foreground">{filteredDogs.length}</span> dogs found
+                </p>
+              </div>
             </div>
+
+            {locationError && (
+              <Alert variant="destructive" className="mb-6">
+                <AlertDescription>
+                  <div className="space-y-2">
+                    <p className="font-semibold">{locationError}</p>
+                    {window.location.protocol !== 'https:' && window.location.hostname !== 'localhost' && (
+                      <p className="text-sm">Note: This site must use HTTPS for location features to work.</p>
+                    )}
+                    <p className="text-sm">
+                      To enable location: Click the lock icon in your browser's address bar and allow location access.
+                    </p>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+
+            {hasLocation && (
+              <Alert className="mb-6 border-primary/50 bg-primary/5">
+                <MapPin className="w-4 h-4" />
+                <AlertDescription>
+                  Showing dogs sorted by distance from your location
+                </AlertDescription>
+              </Alert>
+            )}
 
             {isLoading ? (
               <div className="flex items-center justify-center py-16">
@@ -155,7 +250,7 @@ const DogGrid = () => {
                       className="animate-fade-up"
                       style={{ animationDelay: `${index * 0.1}s` }}
                     >
-                      <DogCard dog={dog} viewMode={viewMode} />
+                      <DogCard dog={dog} viewMode={viewMode} showDistance={hasLocation} />
                     </div>
                   ))}
                 </div>

@@ -20,6 +20,7 @@ export interface Dog {
   goodWithDogs: boolean;
   goodWithCats: boolean;
   description: string;
+  distance?: number; // Distance in km from user's location (calculated when user location is available)
 }
 
 export type SizeFilter = 'All' | 'Small' | 'Medium' | 'Large';

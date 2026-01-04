@@ -2,6 +2,7 @@ import { useQuery } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { Dog } from '@/types/dog';
 import { DEFAULT_DOG_IMAGE } from '@/lib/constants';
+import { calculateDistance } from '@/lib/geolocation';
 
 // Helper function to calculate age category from birth date
 // Returns: 'Puppy' (≤6 months), 'Young' (6mo-2yr), 'Adult' (2-8yr), 'Senior' (8+yr)
@@ -82,6 +83,8 @@ interface DogRow {
     name: string;
     region: string;
     website: string | null;
+    latitude: number | null;
+    longitude: number | null;
   } | null;
   dogs_breeds: Array<{
     breeds: {
@@ -92,15 +95,15 @@ interface DogRow {
   }>;
 }
 
-export const useDogs = () => {
+export const useDogs = (userLocation?: { latitude: number; longitude: number }) => {
   return useQuery({
-    queryKey: ['dogs'],
+    queryKey: ['dogs', userLocation],
     queryFn: async (): Promise<Dog[]> => {
       const { data, error } = await (supabase as any)
         .from('dogs')
         .select(`
           *,
-          rescues(id, name, region, website),
+          rescues(id, name, region, website, latitude, longitude),
           dogs_breeds(display_order, breed_id, breeds(id, name))
         `)
         .order('created_at', { ascending: false });
@@ -109,7 +112,7 @@ export const useDogs = () => {
         throw error;
       }
 
-      return (data as unknown as DogRow[]).map((dog) => {
+      let dogs = (data as unknown as DogRow[]).map((dog) => {
         // Get breeds from many-to-many relationship
         const breeds = dog.dogs_breeds
           ?.sort((a, b) => a.display_order - b.display_order)
@@ -118,7 +121,7 @@ export const useDogs = () => {
         // Calculate computed age if birth date is available
         const computedAge = calculateAgeCategory(dog.birth_year, dog.birth_month, dog.birth_day);
 
-        return {
+        const dogData: Dog = {
           id: dog.id,
           name: dog.name,
           breed: breeds.join(', '), // Display string
@@ -141,7 +144,31 @@ export const useDogs = () => {
           goodWithCats: dog.good_with_cats,
           description: dog.description,
         };
+
+        // Calculate distance if user location is provided and rescue has coordinates
+        if (userLocation && dog.rescues?.latitude && dog.rescues?.longitude) {
+          dogData.distance = calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            dog.rescues.latitude,
+            dog.rescues.longitude
+          );
+        }
+
+        return dogData;
       });
+
+      // Sort by distance when user location is available
+      if (userLocation) {
+        dogs.sort((a, b) => {
+          if (a.distance && b.distance) return a.distance - b.distance;
+          if (a.distance) return -1;
+          if (b.distance) return 1;
+          return 0;
+        });
+      }
+
+      return dogs;
     },
   });
 };
