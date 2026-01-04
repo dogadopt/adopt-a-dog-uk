@@ -1,4 +1,4 @@
-import { Heart, Menu, Shield, LogOut, User } from 'lucide-react';
+import { Heart, Menu, Shield, LogOut, User, MessageSquare } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useState } from 'react';
 import { useAuth } from '@/hooks/useAuth';
@@ -56,6 +56,10 @@ const Header = () => {
             </Link>
             <Link to="/rescues" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
               Rescues
+            </Link>
+            <Link to="/chat" className="text-muted-foreground hover:text-foreground transition-colors font-medium flex items-center gap-1">
+              <MessageSquare className="w-4 h-4" />
+              Chat
             </Link>
             {isAdmin && (
               <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors font-medium flex items-center gap-1">
@@ -120,6 +124,10 @@ const Header = () => {
               </Link>
               <Link to="/rescues" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
                 Rescues
+              </Link>
+              <Link to="/chat" className="text-muted-foreground hover:text-foreground transition-colors font-medium flex items-center gap-1">
+                <MessageSquare className="w-4 h-4" />
+                Chat
               </Link>
               {isAdmin && (
                 <Link to="/admin" className="text-muted-foreground hover:text-foreground transition-colors font-medium flex items-center gap-1">
