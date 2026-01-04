@@ -38,9 +38,9 @@ const Header = () => {
           </Link>
 
           <nav className="hidden md:flex items-center gap-8">
-            <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+            <a href="/#dogs" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
               Find a Dog
-            </Link>
+            </a>
             <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
               About
             </Link>
@@ -102,9 +102,9 @@ const Header = () => {
         {isMenuOpen && (
           <nav className="md:hidden py-4 border-t border-border animate-fade-up">
             <div className="flex flex-col gap-4">
-              <Link to="/" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
+              <a href="/#dogs" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
                 Find a Dog
-              </Link>
+              </a>
               <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors font-medium">
                 About
               </Link>
