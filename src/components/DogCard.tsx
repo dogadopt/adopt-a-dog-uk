@@ -1,7 +1,7 @@
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Heart, MapPin, Users, Navigation } from 'lucide-react';
-import type { Dog } from '@/types/dog';
+import type { Dog, StatusFilter } from '@/types/dog';
 
 interface DogCardProps {
   dog: Dog;
@@ -16,7 +16,7 @@ const DogCard = ({ dog, viewMode = 'text-only', showDistance = false }: DogCardP
   const displayAge = dog.computedAge || dog.age;
 
   // Format status for display
-  const formatStatus = (status: string) => {
+  const formatStatus = (status: StatusFilter) => {
     switch (status) {
       case 'available':
         return 'Available';
@@ -36,7 +36,7 @@ const DogCard = ({ dog, viewMode = 'text-only', showDistance = false }: DogCardP
   };
 
   // Get badge variant based on status
-  const getStatusVariant = (status: string): 'default' | 'secondary' | 'destructive' | 'outline' | 'warm' | 'success' => {
+  const getStatusVariant = (status: StatusFilter): 'default' | 'secondary' | 'destructive' | 'outline' | 'warm' | 'success' => {
     switch (status) {
       case 'available':
         return 'success';
