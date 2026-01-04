@@ -100,6 +100,19 @@ For production deployment:
 2. Configure OAuth providers (Google, etc.) as needed
 3. Create admin users by running the SQL command to update their role to 'admin'
 
+## API Documentation
+
+This project includes a comprehensive OpenAPI specification for all API interactions. See:
+- **[API Documentation](API_DOCUMENTATION.md)** - Complete API usage guide
+- **[OpenAPI Specification](openapi.yaml)** - Machine-readable API contract (OpenAPI 3.0.3)
+
+The API documentation covers:
+- Authentication flows (email/password, OAuth)
+- Dog profile management (CRUD operations)
+- Breed and rescue organization queries
+- Image upload and storage
+- Authorization and role-based access control
+
 ## How can I deploy this project?
 
 ### Automated Deployment (Recommended)

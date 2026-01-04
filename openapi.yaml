@@ -1,0 +1,985 @@
+openapi: 3.0.3
+info:
+  title: dogadopt - Dog Adoption Platform API
+  description: |
+    API for the dogadopt platform - a comprehensive dog adoption service connecting rescue organizations with potential adopters.
+    
+    The API provides access to dog profiles, rescue organizations, breed information, and user authentication.
+    All write operations require authentication and appropriate permissions (admin role for management operations).
+    
+    ## Authentication
+    The API uses JWT bearer tokens for authentication via Supabase Auth.
+    
+    ## Base URL
+    The API is served via Supabase and uses the Supabase client library for interactions.
+  version: 1.0.0
+  contact:
+    name: dogadopt Team
+  license:
+    name: MIT
+
+servers:
+  - url: https://{project-ref}.supabase.co/rest/v1
+    description: Supabase REST API
+    variables:
+      project-ref:
+        default: your-project-ref
+        description: Your Supabase project reference ID
+  - url: https://{project-ref}.supabase.co/auth/v1
+    description: Supabase Auth API
+    variables:
+      project-ref:
+        default: your-project-ref
+        description: Your Supabase project reference ID
+  - url: https://{project-ref}.supabase.co/storage/v1
+    description: Supabase Storage API
+    variables:
+      project-ref:
+        default: your-project-ref
+        description: Your Supabase project reference ID
+
+tags:
+  - name: authentication
+    description: User authentication and authorization
+  - name: dogs
+    description: Dog profile management and listing
+  - name: breeds
+    description: Dog breed information
+  - name: rescues
+    description: Rescue organization information
+  - name: storage
+    description: Image upload and storage
+
+paths:
+  /auth/v1/signup:
+    post:
+      tags:
+        - authentication
+      summary: Sign up new user
+      description: Create a new user account with email and password
+      operationId: signUp
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  minLength: 6
+                  example: securePassword123
+                options:
+                  type: object
+                  properties:
+                    emailRedirectTo:
+                      type: string
+                      format: uri
+                      example: https://example.com/
+      responses:
+        '200':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Bad request (e.g., invalid email, weak password)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/v1/token:
+    post:
+      tags:
+        - authentication
+      summary: Sign in with email and password
+      description: Authenticate user and receive access token
+      operationId: signIn
+      parameters:
+        - name: grant_type
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [password]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - email
+                - password
+              properties:
+                email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                password:
+                  type: string
+                  format: password
+                  example: securePassword123
+      responses:
+        '200':
+          description: Successfully authenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AuthResponse'
+        '400':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/v1/authorize:
+    get:
+      tags:
+        - authentication
+      summary: OAuth sign in
+      description: Initiate OAuth flow with Google
+      operationId: oauthSignIn
+      parameters:
+        - name: provider
+          in: query
+          required: true
+          schema:
+            type: string
+            enum: [google]
+        - name: redirect_to
+          in: query
+          schema:
+            type: string
+            format: uri
+      responses:
+        '302':
+          description: Redirect to OAuth provider
+        '400':
+          description: Invalid provider or configuration
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /auth/v1/logout:
+    post:
+      tags:
+        - authentication
+      summary: Sign out
+      description: Invalidate current session
+      operationId: signOut
+      security:
+        - BearerAuth: []
+      responses:
+        '204':
+          description: Successfully signed out
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rest/v1/dogs:
+    get:
+      tags:
+        - dogs
+      summary: List all dogs
+      description: Retrieve a list of all available dogs with their details including breeds, rescue information, and compatibility
+      operationId: listDogs
+      parameters:
+        - name: select
+          in: query
+          description: Columns to include in response
+          schema:
+            type: string
+            default: "*,rescues(id,name,region,website),dogs_breeds(display_order,breeds(id,name))"
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            example: created_at.desc
+        - name: status
+          in: query
+          description: Filter by adoption status using PostgREST syntax
+          schema:
+            type: string
+          example: eq.available
+      responses:
+        '200':
+          description: Successfully retrieved dogs list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DogDetailed'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    post:
+      tags:
+        - dogs
+      summary: Create a new dog profile
+      description: Add a new dog to the database (admin only)
+      operationId: createDog
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DogCreate'
+      responses:
+        '201':
+          description: Dog created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dog'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    patch:
+      tags:
+        - dogs
+      summary: Update a dog profile
+      description: |
+        Update an existing dog's information (admin only).
+        Use PostgREST query parameter syntax to filter by ID: `?id=eq.<uuid>`
+      operationId: updateDog
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Filter by dog ID using PostgREST syntax
+          schema:
+            type: string
+          example: eq.550e8400-e29b-41d4-a716-446655440000
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DogUpdate'
+      responses:
+        '200':
+          description: Dog updated successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Dog'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Dog not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+    delete:
+      tags:
+        - dogs
+      summary: Delete a dog profile
+      description: |
+        Remove a dog from the database (admin only).
+        Use PostgREST query parameter syntax to filter by ID: `?id=eq.<uuid>`
+      operationId: deleteDog
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: id
+          in: query
+          required: true
+          description: Filter by dog ID using PostgREST syntax
+          schema:
+            type: string
+          example: eq.550e8400-e29b-41d4-a716-446655440000
+      responses:
+        '204':
+          description: Dog deleted successfully
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Dog not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rest/v1/rpc/set_dog_breeds:
+    post:
+      tags:
+        - dogs
+        - breeds
+      summary: Set dog breeds
+      description: Update the breed associations for a specific dog (admin only)
+      operationId: setDogBreeds
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required:
+                - p_dog_id
+                - p_breed_names
+              properties:
+                p_dog_id:
+                  type: string
+                  format: uuid
+                  description: The ID of the dog
+                p_breed_names:
+                  type: array
+                  items:
+                    type: string
+                  description: Array of breed names to associate with the dog
+                  example: ["Labrador Retriever", "Golden Retriever"]
+      responses:
+        '200':
+          description: Breeds updated successfully
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rest/v1/breeds:
+    get:
+      tags:
+        - breeds
+      summary: List all breeds
+      description: Retrieve a list of all dog breeds in the system
+      operationId: listBreeds
+      parameters:
+        - name: select
+          in: query
+          description: Columns to include in response
+          schema:
+            type: string
+            default: "*"
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            example: name.asc
+      responses:
+        '200':
+          description: Successfully retrieved breeds list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Breed'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rest/v1/rescues:
+    get:
+      tags:
+        - rescues
+      summary: List all rescue organizations
+      description: Retrieve a list of all registered rescue organizations
+      operationId: listRescues
+      parameters:
+        - name: select
+          in: query
+          description: Columns to include in response
+          schema:
+            type: string
+            default: "*"
+        - name: order
+          in: query
+          description: Sort order
+          schema:
+            type: string
+            example: name.asc
+        - name: region
+          in: query
+          description: Filter by region using PostgREST syntax
+          schema:
+            type: string
+          example: eq.London
+      responses:
+        '200':
+          description: Successfully retrieved rescues list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Rescue'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /rest/v1/user_roles:
+    get:
+      tags:
+        - authentication
+      summary: Check user role
+      description: |
+        Retrieve role information for a user.
+        Use PostgREST query parameter syntax to filter by user ID: `?user_id=eq.<uuid>`
+      operationId: getUserRole
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: user_id
+          in: query
+          required: true
+          description: Filter by user ID using PostgREST syntax
+          schema:
+            type: string
+          example: eq.550e8400-e29b-41d4-a716-446655440000
+        - name: select
+          in: query
+          schema:
+            type: string
+            default: role
+      responses:
+        '200':
+          description: Successfully retrieved user role
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/UserRole'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /storage/v1/object/dog-adopt-images:
+    post:
+      tags:
+        - storage
+      summary: Upload dog image
+      description: Upload an image file for a dog profile (admin only)
+      operationId: uploadImage
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: Image file (max 5MB, images only)
+      responses:
+        '200':
+          description: Image uploaded successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  Key:
+                    type: string
+                    description: Storage key/path of uploaded file
+                  Id:
+                    type: string
+                    description: Unique identifier for the upload
+        '400':
+          description: Bad request (e.g., file too large, invalid format)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '403':
+          description: Forbidden - admin role required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /storage/v1/object/public/dog-adopt-images/{fileName}:
+    get:
+      tags:
+        - storage
+      summary: Get dog image
+      description: Retrieve a public URL for a dog image
+      operationId: getImage
+      parameters:
+        - name: fileName
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Name/path of the image file
+      responses:
+        '200':
+          description: Image retrieved successfully
+          content:
+            image/jpeg:
+              schema:
+                type: string
+                format: binary
+            image/png:
+              schema:
+                type: string
+                format: binary
+            image/webp:
+              schema:
+                type: string
+                format: binary
+        '404':
+          description: Image not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from authentication endpoints
+
+  schemas:
+    Dog:
+      type: object
+      required:
+        - id
+        - name
+        - age
+        - size
+        - gender
+        - image
+        - description
+        - good_with_kids
+        - good_with_dogs
+        - good_with_cats
+        - status
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the dog
+        name:
+          type: string
+          description: Dog's name
+          example: Buddy
+        age:
+          type: string
+          enum: [Puppy, Young, Adult, Senior]
+          description: Age category of the dog
+        size:
+          type: string
+          enum: [Small, Medium, Large]
+          description: Size category of the dog
+        gender:
+          type: string
+          enum: [Male, Female]
+          description: Gender of the dog
+        rescue_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID of the rescue organization
+        location_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID of the physical location
+        image:
+          type: string
+          format: uri
+          description: URL to the dog's profile image
+        description:
+          type: string
+          description: Detailed description of the dog
+        good_with_kids:
+          type: boolean
+          description: Whether the dog is good with children
+        good_with_dogs:
+          type: boolean
+          description: Whether the dog is good with other dogs
+        good_with_cats:
+          type: boolean
+          description: Whether the dog is good with cats
+        profile_url:
+          type: string
+          format: uri
+          nullable: true
+          description: External profile URL (e.g., on rescue's website)
+        status:
+          type: string
+          enum: [available, reserved, adopted, on_hold, fostered, withdrawn]
+          default: available
+          description: Current adoption status
+        status_notes:
+          type: string
+          nullable: true
+          description: Additional notes about the status
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the dog was added
+        last_updated_at:
+          type: string
+          format: date-time
+          description: Timestamp of last update
+
+    DogDetailed:
+      allOf:
+        - $ref: '#/components/schemas/Dog'
+        - type: object
+          properties:
+            rescues:
+              $ref: '#/components/schemas/Rescue'
+              nullable: true
+            dogs_breeds:
+              type: array
+              items:
+                type: object
+                properties:
+                  display_order:
+                    type: integer
+                    description: Order in which breed should be displayed
+                  breeds:
+                    $ref: '#/components/schemas/Breed'
+
+    DogCreate:
+      type: object
+      required:
+        - name
+        - age
+        - size
+        - gender
+        - image
+        - description
+      properties:
+        name:
+          type: string
+          example: Buddy
+        age:
+          type: string
+          enum: [Puppy, Young, Adult, Senior]
+        size:
+          type: string
+          enum: [Small, Medium, Large]
+        gender:
+          type: string
+          enum: [Male, Female]
+        rescue_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID of the rescue organization
+        location_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID of the physical location (optional - rescue region is typically used)
+        image:
+          type: string
+          format: uri
+        description:
+          type: string
+        good_with_kids:
+          type: boolean
+          default: false
+        good_with_dogs:
+          type: boolean
+          default: false
+        good_with_cats:
+          type: boolean
+          default: false
+        profile_url:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          type: string
+          enum: [available, reserved, adopted, on_hold, fostered, withdrawn]
+          default: available
+
+    DogUpdate:
+      type: object
+      properties:
+        name:
+          type: string
+        age:
+          type: string
+          enum: [Puppy, Young, Adult, Senior]
+        size:
+          type: string
+          enum: [Small, Medium, Large]
+        gender:
+          type: string
+          enum: [Male, Female]
+        rescue_id:
+          type: string
+          format: uuid
+          nullable: true
+        location_id:
+          type: string
+          format: uuid
+          nullable: true
+          description: ID of the physical location (optional)
+        image:
+          type: string
+          format: uri
+        description:
+          type: string
+        good_with_kids:
+          type: boolean
+        good_with_dogs:
+          type: boolean
+        good_with_cats:
+          type: boolean
+        profile_url:
+          type: string
+          format: uri
+          nullable: true
+        status:
+          type: string
+          enum: [available, reserved, adopted, on_hold, fostered, withdrawn]
+        status_notes:
+          type: string
+
+    Breed:
+      type: object
+      required:
+        - id
+        - name
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the breed
+        name:
+          type: string
+          description: Breed name
+          example: Labrador Retriever
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the breed was added
+
+    Rescue:
+      type: object
+      required:
+        - id
+        - name
+        - type
+        - region
+      properties:
+        id:
+          type: string
+          format: uuid
+          description: Unique identifier for the rescue
+        name:
+          type: string
+          description: Name of the rescue organization
+          example: Battersea
+        type:
+          type: string
+          description: Type of rescue organization
+          default: Full
+        region:
+          type: string
+          description: Geographic region/area served
+          example: London
+        website:
+          type: string
+          format: uri
+          nullable: true
+          description: Website URL of the rescue
+        created_at:
+          type: string
+          format: date-time
+          description: Timestamp when the rescue was registered
+
+    UserRole:
+      type: object
+      required:
+        - user_id
+        - role
+      properties:
+        user_id:
+          type: string
+          format: uuid
+          description: User's unique identifier
+        role:
+          type: string
+          enum: [user, admin]
+          description: User's role in the system
+        created_at:
+          type: string
+          format: date-time
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        aud:
+          type: string
+          description: Audience claim
+        role:
+          type: string
+          description: Authentication role
+        created_at:
+          type: string
+          format: date-time
+        app_metadata:
+          type: object
+          additionalProperties: true
+        user_metadata:
+          type: object
+          additionalProperties: true
+
+    Session:
+      type: object
+      properties:
+        access_token:
+          type: string
+          description: JWT access token
+        token_type:
+          type: string
+          example: bearer
+        expires_in:
+          type: integer
+          description: Token expiration time in seconds
+        expires_at:
+          type: integer
+          description: Unix timestamp of expiration
+        refresh_token:
+          type: string
+          description: Refresh token for obtaining new access token
+        user:
+          $ref: '#/components/schemas/User'
+
+    AuthResponse:
+      type: object
+      properties:
+        user:
+          $ref: '#/components/schemas/User'
+        session:
+          $ref: '#/components/schemas/Session'
+
+    Error:
+      type: object
+      required:
+        - message
+      properties:
+        message:
+          type: string
+          description: Error message
+        code:
+          type: string
+          description: Error code
+        hint:
+          type: string
+          description: Hint for resolving the error
+        details:
+          type: string
+          description: Detailed error information
