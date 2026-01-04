@@ -3,7 +3,7 @@ import DogCard from './DogCard';
 import FilterSidebar from './FilterSidebar';
 import { useDogs } from '@/hooks/useDogs';
 import { useGeolocation } from '@/hooks/useGeolocation';
-import type { SizeFilter, AgeFilter } from '@/types/dog';
+import type { SizeFilter, AgeFilter, StatusFilter } from '@/types/dog';
 import { Search, Loader2, MapPin, Navigation, X } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -27,6 +27,7 @@ const ITEMS_PER_PAGE = 10;
 const DogGrid = () => {
   const [sizeFilter, setSizeFilter] = useState<SizeFilter>('All');
   const [ageFilter, setAgeFilter] = useState<AgeFilter>('All');
+  const [statusFilter, setStatusFilter] = useState<StatusFilter>('available');
   const [searchQuery, setSearchQuery] = useState('');
   const [viewMode, setViewMode] = useState<ViewMode>('text-only');
   const [currentPage, setCurrentPage] = useState(1);
@@ -77,15 +78,16 @@ const DogGrid = () => {
       // Use computedAge (from birth date if available) for filtering
       const effectiveAge = dog.computedAge || dog.age;
       const matchesAge = ageFilter === 'All' || effectiveAge === ageFilter;
+      const matchesStatus = dog.status === statusFilter;
       const matchesSearch =
         searchQuery === '' ||
         dog.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         dog.breed.toLowerCase().includes(searchQuery.toLowerCase()) ||
         dog.location.toLowerCase().includes(searchQuery.toLowerCase());
 
-      return matchesSize && matchesAge && matchesSearch;
+      return matchesSize && matchesAge && matchesStatus && matchesSearch;
     });
-  }, [dogs, sizeFilter, ageFilter, searchQuery]);
+  }, [dogs, sizeFilter, ageFilter, statusFilter, searchQuery]);
 
   // Calculate pagination values
   const totalPages = Math.ceil(filteredDogs.length / ITEMS_PER_PAGE);
@@ -96,6 +98,7 @@ const DogGrid = () => {
   const handleClearFilters = () => {
     setSizeFilter('All');
     setAgeFilter('All');
+    setStatusFilter('available');
     setSearchQuery('');
     setCurrentPage(1);
   };
@@ -107,6 +110,11 @@ const DogGrid = () => {
 
   const handleAgeChange = (age: AgeFilter) => {
     setAgeFilter(age);
+    setCurrentPage(1);
+  };
+
+  const handleStatusChange = (status: StatusFilter) => {
+    setStatusFilter(status);
     setCurrentPage(1);
   };
 
@@ -139,8 +147,10 @@ const DogGrid = () => {
             <FilterSidebar
               sizeFilter={sizeFilter}
               ageFilter={ageFilter}
+              statusFilter={statusFilter}
               onSizeChange={handleSizeChange}
               onAgeChange={handleAgeChange}
+              onStatusChange={handleStatusChange}
               onClearFilters={handleClearFilters}
             />
           </div>
