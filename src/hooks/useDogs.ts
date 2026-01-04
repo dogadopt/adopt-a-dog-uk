@@ -65,6 +65,8 @@ interface DogRow {
   age: string;
   size: string;
   gender: string;
+  status: string;
+  status_notes: string | null;
   location_id: string | null;
   rescue_id: string | null;
   image: string | null;
@@ -134,6 +136,8 @@ export const useDogs = (userLocation?: { latitude: number; longitude: number }) 
           computedAge: computedAge || dog.age, // Use computed age if available, otherwise fall back to manual age
           size: dog.size as 'Small' | 'Medium' | 'Large',
           gender: dog.gender as 'Male' | 'Female',
+          status: dog.status as 'available' | 'reserved' | 'adopted' | 'on_hold' | 'fostered' | 'withdrawn',
+          statusNotes: dog.status_notes,
           location: dog.rescues?.region || 'Unknown', // Use rescue region as location
           rescue: dog.rescues?.name || 'Unknown',
           rescueWebsite: dog.rescues?.website,

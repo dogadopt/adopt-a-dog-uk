@@ -33,6 +33,8 @@ interface DogFormData {
   rescueSinceDate: string;
   size: string;
   gender: string;
+  status: string;
+  status_notes: string;
   location: string;
   rescue_id: string;
   image: string;
@@ -53,6 +55,8 @@ const initialFormData: DogFormData = {
   rescueSinceDate: '',
   size: 'Medium',
   gender: 'Male',
+  status: 'available',
+  status_notes: '',
   location: '',
   rescue_id: '',
   image: '',
@@ -114,6 +118,8 @@ const Admin = () => {
         rescueSinceDate: dog.rescueSinceDate || '',
         size: dog.size,
         gender: dog.gender,
+        status: dog.status,
+        status_notes: dog.statusNotes || '',
         location: dog.location,
         rescue_id: rescue?.id || '',
         image: dog.image,
@@ -270,6 +276,8 @@ const Admin = () => {
         rescue_since_date: formData.rescueSinceDate || null,
         size: formData.size,
         gender: formData.gender,
+        status: formData.status,
+        status_notes: formData.status_notes || null,
         rescue_id: formData.rescue_id || null,
         image: imageUrl,
         profile_url: formData.profileUrl || null,
@@ -466,6 +474,32 @@ const Admin = () => {
                       </SelectContent>
                     </Select>
                   </div>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status">Adoption Status</Label>
+                  <Select value={formData.status} onValueChange={(v) => setFormData({ ...formData, status: v })}>
+                    <SelectTrigger><SelectValue /></SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="available">Available</SelectItem>
+                      <SelectItem value="reserved">Reserved</SelectItem>
+                      <SelectItem value="adopted">Adopted</SelectItem>
+                      <SelectItem value="on_hold">On Hold</SelectItem>
+                      <SelectItem value="fostered">Fostered</SelectItem>
+                      <SelectItem value="withdrawn">Withdrawn</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div className="space-y-2">
+                  <Label htmlFor="status_notes">Status Notes (Optional)</Label>
+                  <Textarea
+                    id="status_notes"
+                    value={formData.status_notes}
+                    onChange={(e) => setFormData({ ...formData, status_notes: e.target.value })}
+                    rows={2}
+                    placeholder="Optional notes about the adoption status..."
+                  />
                 </div>
 
                 <div className="space-y-2">

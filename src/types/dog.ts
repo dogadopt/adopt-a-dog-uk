@@ -11,6 +11,8 @@ export interface Dog {
   rescueSinceDate?: string | null; // Date the dog was taken into the rescue (ISO format YYYY-MM-DD)
   size: 'Small' | 'Medium' | 'Large';
   gender: 'Male' | 'Female';
+  status: 'available' | 'reserved' | 'adopted' | 'on_hold' | 'fostered' | 'withdrawn'; // Adoption status
+  statusNotes?: string | null; // Optional notes about the status
   location: string;
   rescue: string;
   rescueWebsite?: string;
